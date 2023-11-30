@@ -8,5 +8,5 @@ export function TimeLog(seconds?: boolean) {
 }
 /* ------- SERVER LOG ------- */
 export function ServerLog(server: "socket" | "peer", message: string) {
-    console.log(`[ ${TimeLog(true)} ][ ${server.toUpperCase()} LOG ] ${message}`)
+    console.log(`[ ${TimeLog(true)} ][ LOG ][ ${server.toUpperCase()} ] ${message}`)
 }

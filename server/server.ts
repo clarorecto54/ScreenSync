@@ -47,9 +47,9 @@ httpsServer
     .once("error", GracefulShutdown)
     .listen(3001, () => {
         console.clear() //? Clear the log
-        console.log(`[ ${TimeLog(true)} ][ SOCKET RUNNING ] https://${GETIP()}:3001`)
-        console.log(`[ ${TimeLog(true)} ][ PEER RUNNING ] https://${GETIP()}:3002`)
-        console.log(`[ ${TimeLog(true)} ][ STUN RUNNING ] stun:${GETIP()}:3003`)
-        console.log(`[ ${TimeLog(true)} ][ STUN RUNNING ] stun:${GETIP()}:3004`)
-        console.log(`[ ${TimeLog(true)} ][ STUN RUNNING ] stun:${GETIP()}:3005`)
+        console.log(`[ ${TimeLog(true)} ][ RUNNING ][ SOCKET ] https://${GETIP()}:3001`)
+        console.log(`[ ${TimeLog(true)} ][ RUNNING ][ PEER ] https://${GETIP()}:3002`)
+        console.log(`[ ${TimeLog(true)} ][ RUNNING ][ STUN ] stun:${GETIP()}:3003`)
+        console.log(`[ ${TimeLog(true)} ][ RUNNING ][ STUN ] stun:${GETIP()}:3004`)
+        console.log(`[ ${TimeLog(true)} ][ RUNNING ][ STUN ] stun:${GETIP()}:3005`)
     })

@@ -63,6 +63,7 @@ export function GlobalContextProvider({ children }: { children: ReactNode }) {
                     }))
                 }
             })
+            socket.on("disconnect", () => setuserID(""))
         }
         return () => {
             if (socket) {
@@ -85,6 +86,7 @@ export function GlobalContextProvider({ children }: { children: ReactNode }) {
                         }))
                     }
                 })
+                socket.off("disconnect", () => setuserID(""))
             }
         }
     }, [socket])

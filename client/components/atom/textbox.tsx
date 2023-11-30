@@ -27,7 +27,7 @@ export default forwardRef<HTMLInputElement, TextboxProps>(function Textbox({ cir
             "bg-white overflow-hidden shadow", //? Background Styling
             "focus-within:border-[1px] focus-within:border-blue-600", //? Border Styling
             circle && "rounded-full", //? Conditional
-            containerClass, `text-[${textSize ?? 14}px]`
+            containerClass, `text-[${textSize ?? 10}px]`
         )}>
         {useIcon && <label //* ICON BACKGROUND
             htmlFor={id}
@@ -38,7 +38,7 @@ export default forwardRef<HTMLInputElement, TextboxProps>(function Textbox({ cir
             )}>
             <Image //* ICON
                 className={classMerge(
-                    "h-[1.5em] w-[1.5em] object-cover", //? Base
+                    "h-[1.25em] w-[1.5em] object-cover", //? Base
                     iconOverlay && (customOverlay ?? "whiteOverlay") //? Conditional
                 )}
                 src={iconSrc ?? MissingImg}
