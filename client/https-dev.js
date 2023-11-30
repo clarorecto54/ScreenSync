@@ -1,11 +1,21 @@
 const { createServer } = require('https')
 const { parse } = require('url')
+const os = require("os")
 const next = require('next')
 const fs = require("fs")
 const dev = process.env.NODE_ENV !== 'production'
-const hostname = 'localhost'
 const port = 3000
-const app = next({ dev, hostname, port })
+let IP = ""
+try {
+    for (let index = 0; index < 4; index++) {
+        let data = os.networkInterfaces()[Object.keys(os.networkInterfaces())[index]][0].address
+        if ((data.split(".").length - 1) === 3) {
+            IP = data
+            break
+        }
+    }
+} catch { console.log("No LAN Detected running on localhost") }
+const app = next({ dev, IP, port })
 const handle = app.getRequestHandler()
 
 app.prepare().then(() => {
@@ -34,6 +44,6 @@ app.prepare().then(() => {
             process.exit(1)
         })
         .listen(port, () => {
-            console.log(`> Ready on https://${hostname}:${port}`)
+            console.log(`> Ready on https://${IP}:${port}`)
         })
 })
