@@ -33,7 +33,7 @@ export default forwardRef<HTMLButtonElement, ButtonProps>(function Button({ circ
                 "font-[600] font-[Montserrat]", //? Font Styling
                 circle ? "rounded-full px-[1.5em]" : "rounded-[1em]", //? Conditional
                 (circle && !children) && "rounded-full p-[1em]", //? Conditional
-                className, `text-[${textSize ?? 10}px]` //? Main class for final/specific modifications
+                `text-[${textSize ?? 14}px]`, className //? Main class for final/specific modifications
             )}>
             {useNotif && <div className={classMerge( //* NOTIFICATION
                 "bg-[#D6D6D6] h-[40%] p-[4px]",

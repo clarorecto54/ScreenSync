@@ -27,7 +27,7 @@ export default forwardRef<HTMLInputElement, TextboxProps>(function Textbox({ cir
             "bg-white overflow-hidden shadow", //? Background Styling
             "focus-within:border-[1px] focus-within:border-blue-600", //? Border Styling
             circle && "rounded-full", //? Conditional
-            containerClass, `text-[${textSize ?? 10}px]`
+            `text-[${textSize ?? 14}px]`, containerClass
         )}>
         {useIcon && <label //* ICON BACKGROUND
             htmlFor={id}

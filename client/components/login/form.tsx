@@ -49,7 +49,7 @@ function Logo() {
             />
         </div>
         <div //* DESCRIPTION
-            className="font-[Montserrat] font-[600] leading-5">
+            className="font-[Montserrat] font-[600] leading-5 Unselectable">
             ScreenSync <br />
             <span className={classMerge(
                 "rounded-full", //? Size
@@ -64,13 +64,13 @@ function Logo() {
 }
 function Description() {
     return <div //* DESCRIPTION
-        className="w-full flex flex-col gap-[0.5em] max-w-min text-[1em]">
+        className="w-full flex flex-col gap-[0.5em] max-w-min text-[1em] Unselectable">
         <label //* HEADER 1
-            className="font-[500] font-[Montserrat] text-[1em] min-w-max Unselectable">
+            className="font-[500] font-[Montserrat] text-[1em] min-w-max">
             TUPC Screen Mirroring Solution
         </label>
         <label //* DESCRIPTION
-            className="font-[400] font-[Montserrat] text-[0.75em] Unselectable">
+            className="font-[400] font-[Montserrat] text-[0.75em]">
             Enjoy the power of visual communication and take your educational experience to the next level
         </label>
     </div>
@@ -89,18 +89,18 @@ function Input() {
         <div //* INPUT CONTAINER
             className="flex flex-col gap-[0.5em]">
             <Textbox //* NAME
-                textSize={12} maxLength={32}
+                maxLength={32} containerClass="text-[14px]"
                 value={name} onChange={(thisElement) => setname(thisElement.target.value)}
                 id="name" useIcon iconSrc={ParticipantImg}
                 placeholder="What is your name?" />
             {name.length > 3 && <Textbox //* KEY
-                textSize={12} maxLength={32}
+                maxLength={32} containerClass="text-[14px]"
                 value={key} onChange={(thisElement) => setKey(thisElement.target.value)}
                 id="key" useIcon iconSrc={KeyImg}
                 placeholder="Key is optional" />}
         </div>
         {name.length > 3 && <Button
-            type="submit" textSize={12}
+            type="submit" containerClass="text-[14px]"
             useIcon iconOverlay iconSrc={JoinImg}
             className={classMerge(
                 "bg-red-500 hover:bg-red-700 hover:scale-90", //? Base
