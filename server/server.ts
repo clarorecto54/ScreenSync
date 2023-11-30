@@ -3,10 +3,11 @@ import { createServer } from "https"
 import { Server } from "socket.io"
 import { readFileSync } from "fs"
 import { TimeLog } from "./system/log"
+import Turn from "node-turn"
 import GETIP from "./system/ipv4"
 import SocketListener from "./system/socket/socket"
 import GracefulShutdown from "./system/cleanups"
-const os = require("os")
+import PeerListener from "./system/peer/peer"
 /* ----- INITIALIZATION ----- */
 export const httpsServer = createServer({
     cert: readFileSync("../SSL/server.crt", "utf-8"),
@@ -21,10 +22,23 @@ export const peer = PeerServer({
     allow_discovery: true,
     proxied: true,
     port: 3002,
-    path: "/"
+    path: "/",
+})
+export const turn1 = new Turn({
+    listeningPort: 3003,
+    authMech: "none",
+})
+export const turn2 = new Turn({
+    listeningPort: 3004,
+    authMech: "none",
+})
+export const turn3 = new Turn({
+    listeningPort: 3005,
+    authMech: "none",
 })
 /* ------ API HANDLING ------ */
-SocketListener()
+turn1.start(); turn2.start(); turn3.start()
+SocketListener(); PeerListener()
 /* ----- SERVER STARTUP ----- */
 process.on("SIGINT", GracefulShutdown) //? CTRL + C EVENT
 process.on("SIGTERM", GracefulShutdown) //? Terminal got closed
@@ -35,4 +49,7 @@ httpsServer
         console.clear() //? Clear the log
         console.log(`[ ${TimeLog(true)} ][ SOCKET RUNNING ] https://${GETIP()}:3001`)
         console.log(`[ ${TimeLog(true)} ][ PEER RUNNING ] https://${GETIP()}:3002`)
+        console.log(`[ ${TimeLog(true)} ][ STUN RUNNING ] stun:${GETIP()}:3003`)
+        console.log(`[ ${TimeLog(true)} ][ STUN RUNNING ] stun:${GETIP()}:3004`)
+        console.log(`[ ${TimeLog(true)} ][ STUN RUNNING ] stun:${GETIP()}:3005`)
     })
