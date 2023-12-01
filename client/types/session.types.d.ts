@@ -26,3 +26,21 @@ interface MessageProps {
     message: string | string[]
     time: string
 }
+interface StreamProps {
+    id: string
+    presenting: boolean
+}
+interface AttendanceProps {
+    id: string
+    name: string
+    time: string
+}
+interface RoomProps {
+    id: string
+    key: string
+    host: UserProps
+    participants: UserProps[]
+    chatlog: MessageProps[]
+    stream: StreamProps
+    entries: AttendanceProps[]
+}

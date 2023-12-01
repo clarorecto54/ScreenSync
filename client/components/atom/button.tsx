@@ -12,11 +12,10 @@ interface ButtonProps extends
     iconOverlay?: boolean //? Icon Overlay
     customOverlay?: string //? Icon Custom Overlay
     useNotif?: boolean //? Button Notification
-    iconSize?: number //? Icon size
     containerClass?: HTMLAttributes<HTMLDivElement>["className"] //? Container Class
 }
 /* -------- COMPONENT ------- */
-export default forwardRef<HTMLButtonElement, ButtonProps>(function Button({ circle, useIcon, iconSrc, iconOverlay, customOverlay, useNotif, iconSize, containerClass, className, children, type, ...props }, ref) {
+export default forwardRef<HTMLButtonElement, ButtonProps>(function Button({ circle, useIcon, iconSrc, iconOverlay, customOverlay, useNotif, containerClass, className, children, type, ...props }, ref) {
     return <div //* CONTAINER
         className={classMerge(
             "min-w-max min-h-max text-[1em]", //? Base
@@ -42,7 +41,7 @@ export default forwardRef<HTMLButtonElement, ButtonProps>(function Button({ circ
             {useIcon && <Image //* ICON
                 className={classMerge(
                     "object-cover", //? Base
-                    `h-[${iconSize ?? 1.5}em] w-[${iconSize ?? 1.5}em]`,//? Conditional
+                    `h-[1.5em] w-[1.5em]`,//? Conditional
                     iconOverlay && (customOverlay ?? "whiteOverlay") //? Conditional
                 )}
                 src={iconSrc ?? require("@/public/images/Missing.svg")}

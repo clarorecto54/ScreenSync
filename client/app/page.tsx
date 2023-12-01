@@ -2,8 +2,12 @@
 import Image from "next/image";
 import classMerge from "@/components/utils/classMerge";
 import LoginForm from "@/components/login/form";
+import SessionList from "@/components/login/sessions";
+import { useGlobals } from "@/components/hooks/useGlobals";
 
 export default function Home() {
+  /* ----- STATES & HOOKS ----- */
+  const { name } = useGlobals()
   /* -------- RENDERING ------- */
   return <div //* VIEWPORT
     className={classMerge(
@@ -12,11 +16,12 @@ export default function Home() {
     )}>
     <div //* BACKDROP
       className={classMerge(
-        "h-full w-full flex justify-center items-center", //? Base
+        "h-full w-full flex gap-[2em] justify-center items-center", //? Base
         "focus-within:backdrop-blur-md focus-within:backdrop-brightness-50", //? Trigger
         "transition-all duration-1000", //? Animation
       )}>
       <LoginForm />
+      {name.length > 3 && <SessionList />}
     </div>
     <Image //* BACKGROUND IMAGE
       priority
