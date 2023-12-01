@@ -2,9 +2,9 @@ import Image from "next/image"
 import classMerge from "./utils/classMerge"
 export default function AnimatedLogo({ size }: { size: number }) {
     return <div //* LOGO CONTAINER 
+        style={{ height: `${size}em` }}
         className={classMerge(
-            "relative aspect-square flex justify-center items-center Unselectable", //? Base
-            size ? `h-[${size}em]` : "h-[8em]", //? Conditional
+            "relative aspect-square flex justify-center items-center h-[8em] Unselectable", //? Base
         )}>
         <Image //* BACK LOGO
             priority
