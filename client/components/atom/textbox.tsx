@@ -1,9 +1,7 @@
 import { HTMLAttributes, InputHTMLAttributes, forwardRef } from "react"
 import Image from "next/image"
 import classMerge from "../utils/classMerge"
-import MissingImg from "@/public/images/Missing.svg"
 import Button from "./button"
-import SendImg from "@/public/images/Send.svg"
 /* ---- TEXTBOX INTERFACE --- */
 interface TextboxProps extends
     InputHTMLAttributes<HTMLInputElement> {
@@ -15,33 +13,34 @@ interface TextboxProps extends
     customOverlay?: string //? Icon Custom Overlay
     useSubmit?: boolean //? Submit Button
     SubmitSrc?: string //? Button Icon
-    textSize?: number //? Textsize
+    iconClass?: HTMLAttributes<HTMLLabelElement>["className"] //? Icon Class
     containerClass?: HTMLAttributes<HTMLDivElement>["className"] //? Container Class
 }
 /* -------- COMPONENT ------- */
-export default forwardRef<HTMLInputElement, TextboxProps>(function Textbox({ circle, useIcon, iconSrc, iconOverlay, customOverlay, useSubmit, SubmitSrc, textSize, containerClass, type, className, placeholder, id, ...props }, ref) {
+export default forwardRef<HTMLInputElement, TextboxProps>(function Textbox({ circle, useIcon, iconSrc, iconOverlay, customOverlay, useSubmit, SubmitSrc, iconClass, containerClass, type, className, placeholder, id, ...props }, ref) {
     return <div //* CONTAINER
         className={classMerge(
             "min-h-max min-w-max rounded-[1em]", //? Sizing
             "flex flex-row justify-center items-center", //? Display Styling
-            "bg-white overflow-hidden shadow", //? Background Styling
+            "overflow-hidden shadow", //? Background Styling
             "focus-within:border-[1px] focus-within:border-blue-600", //? Border Styling
             circle && "rounded-full", //? Conditional
-            `text-[${textSize ?? 14}px]`, containerClass
+            containerClass
         )}>
         {useIcon && <label //* ICON BACKGROUND
             htmlFor={id}
             className={classMerge(
                 "flex justify-center items-center bg-white aspect-square", //? Base
-                "p-[0.786em]", //? Size
-                circle && "pl-[calc(0.786em+0.5em)]"
+                "p-[0.917em]", //? Size
+                circle && "pl-[calc(0.786em+0.5em)]",
+                iconClass
             )}>
             <Image //* ICON
                 className={classMerge(
                     "h-[1.25em] w-[1.5em] object-cover", //? Base
                     iconOverlay && (customOverlay ?? "whiteOverlay") //? Conditional
                 )}
-                src={iconSrc ?? MissingImg}
+                src={iconSrc ?? require("@/public/images/Missing.svg")}
                 alt=""
                 sizes="100vw"
             /></label>}
@@ -60,10 +59,9 @@ export default forwardRef<HTMLInputElement, TextboxProps>(function Textbox({ cir
         {useSubmit && <Button
             type="submit"
             useIcon circle={circle}
-            textSize={textSize}
             iconSize={1.5}
-            iconSrc={SendImg}
-            containerClass="ml-[0.5em]"
-            className="p-[0.75em] hover:bg-[#00000050]" />}
+            iconSrc={require("@/public/images/Send.svg")}
+            containerClass="ml-[0.5em] text-[1em]"
+            className="p-[0.75em] hover:bg-[#00000050] text-[1em]" />}
     </div>
 })

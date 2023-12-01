@@ -1,7 +1,6 @@
 "use client"
 import Image from "next/image";
 import classMerge from "@/components/utils/classMerge";
-import TUPBGImg from "@/public/images/Background.svg"
 import LoginForm from "@/components/login/form";
 
 export default function Home() {
@@ -22,7 +21,7 @@ export default function Home() {
     <Image //* BACKGROUND IMAGE
       priority
       className="absolute object-cover -z-[99]"
-      src={TUPBGImg}
+      src={require("@/public/images/Background.svg")}
       alt=""
       sizes="100vw"
       fill

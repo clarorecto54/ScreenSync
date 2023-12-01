@@ -1,5 +1,5 @@
 import { io } from "../../server"
-import { ServerLog } from "../log"
+import { ServerLog, TimeLog } from "../log"
 
 export default function SocketListener() {
     io.on("connection", socket => {
@@ -11,6 +11,12 @@ export default function SocketListener() {
             ServerLog("socket", `Total Client: ${io.sockets.sockets.size}`)
             ServerLog("socket", `Client Disnnected: ${socket.id}`)
         })
+        //* SERVER TIME & PING
+        setInterval(() => {
+            const now = new Date()
+            socket.local.emit("get-server-time", TimeLog())
+            socket.local.emit("ping", now.getTime())
+        }, 1000)
         /* -------------------------- */
     })
 }

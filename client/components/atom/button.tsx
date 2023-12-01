@@ -3,7 +3,6 @@ import { ButtonHTMLAttributes, HTMLAttributes, forwardRef } from "react"
 import classMerge from "../utils/classMerge"
 import { StaticImageData } from "next/image"
 import Image from "next/image"
-import MissingImg from "@/public/images/Missing.svg"
 /* ---- BUTTON INTERFACE ---- */
 interface ButtonProps extends
     ButtonHTMLAttributes<HTMLButtonElement> {
@@ -13,15 +12,14 @@ interface ButtonProps extends
     iconOverlay?: boolean //? Icon Overlay
     customOverlay?: string //? Icon Custom Overlay
     useNotif?: boolean //? Button Notification
-    textSize?: number //? Textsize
     iconSize?: number //? Icon size
     containerClass?: HTMLAttributes<HTMLDivElement>["className"] //? Container Class
 }
 /* -------- COMPONENT ------- */
-export default forwardRef<HTMLButtonElement, ButtonProps>(function Button({ circle, useIcon, iconSrc, iconOverlay, customOverlay, useNotif, textSize, iconSize, containerClass, className, children, type, ...props }, ref) {
+export default forwardRef<HTMLButtonElement, ButtonProps>(function Button({ circle, useIcon, iconSrc, iconOverlay, customOverlay, useNotif, iconSize, containerClass, className, children, type, ...props }, ref) {
     return <div //* CONTAINER
         className={classMerge(
-            "min-w-max min-h-max", //? Base
+            "min-w-max min-h-max text-[1em]", //? Base
             containerClass //? Conditional
         )}>
         <button //* BUTTON
@@ -33,7 +31,7 @@ export default forwardRef<HTMLButtonElement, ButtonProps>(function Button({ circ
                 "font-[600] font-[Montserrat]", //? Font Styling
                 circle ? "rounded-full px-[1.5em]" : "rounded-[1em]", //? Conditional
                 (circle && !children) && "rounded-full p-[1em]", //? Conditional
-                `text-[${textSize ?? 14}px]`, className //? Main class for final/specific modifications
+                className //? Main class for final/specific modifications
             )}>
             {useNotif && <div className={classMerge( //* NOTIFICATION
                 "bg-[#D6D6D6] h-[40%] p-[4px]",
@@ -47,7 +45,7 @@ export default forwardRef<HTMLButtonElement, ButtonProps>(function Button({ circ
                     `h-[${iconSize ?? 1.5}em] w-[${iconSize ?? 1.5}em]`,//? Conditional
                     iconOverlay && (customOverlay ?? "whiteOverlay") //? Conditional
                 )}
-                src={iconSrc ?? MissingImg}
+                src={iconSrc ?? require("@/public/images/Missing.svg")}
                 alt=""
                 sizes="100vw" />}
             {children}

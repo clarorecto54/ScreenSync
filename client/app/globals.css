@@ -23,6 +23,16 @@ input {
 }
 
 /* ----- CUSTOM STYLING ----- */
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin {
+  animation: spin 10s linear infinite;
+}
+
 .Unselectable {
   user-select: none;
   -moz-user-select: none;

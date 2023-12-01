@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "node https-dev.js",
+    "dev2": "next dev --experimental-https",
     "build": "next build",
     "start": "node https-start.js",
     "lint": "next lint"

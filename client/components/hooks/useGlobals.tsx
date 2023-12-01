@@ -36,11 +36,17 @@ export function GlobalContextProvider({ children }: { children: ReactNode }) {
     const [systemPopup, setsystemPopup] = useState<string>("")
     /* ------ EVENT HANDLER ----- */
     useEffect(() => {
-        !IPv4 ? fetch("/api/getIP", { cache: "no-store" })
-            .then(res => res.text())
-            .then(IP => {
-                setIPv4(IP)
-            }) : setsocket(io(`https://${IPv4}:3001`))
+        if (!IPv4) {
+            fetch("/api/getIP", { cache: "no-store" })
+                .then(res => res.text())
+                .then(IP => {
+                    setIPv4(IP)
+                })
+        } else {
+            setsocket(io(`https://${IPv4}:3001`, {
+                transports: ["websocket", "polling"]
+            }))
+        }
     }, [IPv4])
     useEffect(() => {
         if (socket) {
@@ -75,7 +81,7 @@ export function GlobalContextProvider({ children }: { children: ReactNode }) {
                             port: 3002,
                             path: "/",
                             secure: true,
-                            pingInterval: 1000,
+                            pingInterval: 40,
                             config: {
                                 'iceServers': [
                                     { url: "stun:192.168.2.49:3003" },

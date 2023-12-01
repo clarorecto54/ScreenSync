@@ -13,7 +13,10 @@ export const httpsServer = createServer({
     cert: readFileSync("../SSL/server.crt", "utf-8"),
     key: readFileSync("../SSL/server.key", "utf-8")
 }, require("express")())
-export const io = new Server(httpsServer, { cors: { origin: "*" } })
+export const io = new Server(httpsServer, {
+    cors: { origin: "*" },
+    transports: ["websocket", "polling"]
+})
 export const peer = PeerServer({
     ssl: {
         cert: readFileSync("../SSL/server.crt", "utf-8"),

@@ -1,14 +1,9 @@
-import Image from "next/image";
 import { useGlobals } from "../hooks/useGlobals";
 import { useState } from "react"
 import classMerge from "../utils/classMerge";
-import TUPBackImg from "@/public/images/TUP Back.svg"
-import TUPFrontImg from "@/public/images/TUP Front.svg"
 import Textbox from "../atom/textbox";
-import ParticipantImg from "@/public/images/Participants.svg"
-import KeyImg from "@/public/images/Key.svg"
 import Button from "../atom/button";
-import JoinImg from "@/public/images/Join.svg"
+import AnimatedLogo from "../animated.logo";
 
 export default function LoginForm() {
     /* -------- RENDERING ------- */
@@ -31,23 +26,7 @@ function Logo() {
         className={classMerge(
             "flex gap-[0.5em] justify-center items-center", //? Display
         )}>
-        <div //* LOGO CONTAINER
-            className="relative h-[4em] w-[4em] flex justify-center items-center Unselectable">
-            <Image //* BACK LOGO
-                className="aspect-square object-cover animate-spin"
-                src={TUPBackImg}
-                alt=""
-                sizes="100vw"
-                fill
-            />
-            <Image //* LOGO
-                className="aspect-square object-cover"
-                src={TUPFrontImg}
-                alt=""
-                sizes="100vw"
-                fill
-            />
-        </div>
+        <AnimatedLogo size={4} />
         <div //* DESCRIPTION
             className="font-[Montserrat] font-[600] leading-5 Unselectable">
             ScreenSync <br />
@@ -89,21 +68,21 @@ function Input() {
         <div //* INPUT CONTAINER
             className="flex flex-col gap-[0.5em]">
             <Textbox //* NAME
-                maxLength={32} containerClass="text-[14px]"
+                maxLength={32} containerClass="text-[12px]"
                 value={name} onChange={(thisElement) => setname(thisElement.target.value)}
-                id="name" useIcon iconSrc={ParticipantImg}
+                id="name" useIcon iconSrc={require("@/public/images/Participants.svg")}
                 placeholder="What is your name?" />
             {name.length > 3 && <Textbox //* KEY
-                maxLength={32} containerClass="text-[14px]"
+                maxLength={32} containerClass="text-[12px]"
                 value={key} onChange={(thisElement) => setKey(thisElement.target.value)}
-                id="key" useIcon iconSrc={KeyImg}
+                id="key" useIcon iconSrc={require("@/public/images/Key.svg")}
                 placeholder="Key is optional" />}
         </div>
         {name.length > 3 && <Button
-            type="submit" containerClass="text-[14px]"
-            useIcon iconOverlay iconSrc={JoinImg}
+            type="submit"
+            useIcon iconOverlay iconSrc={require("@/public/images/Join.svg")}
             className={classMerge(
-                "bg-red-500 hover:bg-red-700 hover:scale-90", //? Base
+                "bg-red-500 hover:bg-red-700 hover:scale-90 text-[12px]", //? Base
                 "transition-all duration-300", //? Animation
             )}>
             Join Meeting
