@@ -6,12 +6,14 @@ interface SessionProps {
     mutestream: boolean
     presenting: boolean
     interactive: string
+    muted: string[]
     /* -------------------------- */
     sethost: Dispatch<SetStateAction<boolean>>
     setstreamAcces: Dispatch<SetStateAction<boolean>>
     setmutestream: Dispatch<SetStateAction<boolean>>
     setpresenting: Dispatch<SetStateAction<boolean>>
     setinteractive: Dispatch<SetStateAction<string>>
+    setmuted: Dispatch<SetStateAction<string[]>>
 }
 
 interface UserProps {

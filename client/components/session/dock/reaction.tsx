@@ -1,8 +1,10 @@
 import Button from "@/components/atom/button";
+import { useGlobals } from "@/components/hooks/useGlobals";
 import classMerge from "@/components/utils/classMerge";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 export default function Reaction() {
     /* ----- STATES & HOOKS ----- */
+    const { socket, meetingCode, myInfo } = useGlobals()
     const popupRef = useRef<HTMLDivElement>(null)
     const [showReactions, setShowReactions] = useState<boolean>(false)
     /* -------- RENDERING ------- */
@@ -19,10 +21,11 @@ export default function Reaction() {
                 "backdrop-blur-md backdrop-brightness-75", //? Background
             )}>
             {['🩷', '🎉', '👋', '👍', '👎', '😂', '😢', '🤬'].map((emoji, index) => {
-                const messsage: string = emoji
+                const message: string = emoji
                 return <Button //* REACTION TRIGGER
                     key={index} circle
                     onClick={() => {
+                        socket?.emit("send-message", meetingCode, myInfo, message)
                         setShowReactions(false)
                     }}
                     className={classMerge(

@@ -36,11 +36,13 @@ export default function Participants() {
 }
 function Popup({ participantList }: { participantList: UserProps[] }) {
     /* ----- STATES & HOOKS ----- */
-    const { userID, name } = useGlobals()
-    const { host } = useSession()
+    const { myInfo } = useGlobals()
+    const {
+        host,
+        muted, setmuted,
+    } = useSession()
     const [search, setSearch] = useState<string>("")
     const [selected, setSelected] = useState<string>("")
-    const [muted, setMuted] = useState<string[]>([])
     /* -------- RENDERING ------- */
     return <div
         className={classMerge(
@@ -75,19 +77,19 @@ function Popup({ participantList }: { participantList: UserProps[] }) {
                     "w-full flex gap-[0.5em] justify-between items-center group", //? Base
                     "text-[1em] font-[Montserrat] font-[400] ", //? Font
                 )}>
-                {name} ( You )
+                {myInfo.name} ( You )
                 {participantList.length > 1 && <div //* OPTIONS CONTAINER
                     className="flex justify-center items-center">
-                    {selected.includes(userID) && <div //* OPTIONS
+                    {selected.includes(myInfo.id) && <div //* OPTIONS
                         style={{ translate: `0 -${host ? 7.5 : 4}em` }}
                         className="absolute flex flex-col gap-[0.5em]">
                         <Button //* MUTE ALL
                             circle useIcon iconOverlay iconSrc={require("@/public/images/Mute.svg")}
                             onClick={() => {
                                 if (muted.length === 0) { //? Mute All
-                                    setMuted(participantList.filter(mute => mute.id !== userID).map(target => target.id))
+                                    setmuted(participantList.filter(mute => mute.id !== myInfo.id).map(target => target.id))
                                 } else { //? Unmute All
-                                    setMuted([])
+                                    setmuted([])
                                 }
                             }}
                             className={classMerge(
@@ -118,7 +120,7 @@ function Popup({ participantList }: { participantList: UserProps[] }) {
                     </div>}
                     <Button //* OPTIONS TRIGGER
                         circle iconOverlay useIcon iconSrc={require("@/public/images/3 Dots.svg")}
-                        onClick={() => !selected.includes(userID) ? setSelected(userID) : setSelected("")}
+                        onClick={() => !selected.includes(myInfo.id) ? setSelected(myInfo.id) : setSelected("")}
                         containerClass={classMerge(
                             "text-[0.75em] opacity-0", //? Base
                             "group group-hover:opacity-100", //? Conditional
@@ -127,7 +129,7 @@ function Popup({ participantList }: { participantList: UserProps[] }) {
                 </div>}
             </div>}
             {participantList && participantList.map(({ id, name, IPv4 }, index) => {
-                if (name.toUpperCase().includes(search.toUpperCase()) && userID !== id) {
+                if (name.toUpperCase().includes(search.toUpperCase()) && myInfo.id !== id) {
                     return <div //* PARTICIPANTS TAB
                         key={index}
                         className={classMerge(
@@ -144,9 +146,9 @@ function Popup({ participantList }: { participantList: UserProps[] }) {
                                     circle useIcon iconOverlay iconSrc={require("@/public/images/Mute.svg")}
                                     onClick={() => {
                                         if (!muted.includes(id)) { //? Mute
-                                            setMuted(prevValues => [...prevValues, id])
+                                            setmuted(prevValues => [...prevValues, id])
                                         } else { //? Unmute
-                                            setMuted(muted.filter(muted => muted !== id))
+                                            setmuted(muted.filter(muted => muted !== id))
                                         }
                                     }}
                                     className={classMerge(

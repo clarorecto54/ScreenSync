@@ -23,7 +23,7 @@ export default function LoginForm() {
 }
 function Logo() {
     /* ----- STATES & HOOKS ----- */
-    const { userID } = useGlobals()
+    const { myInfo } = useGlobals()
     /* -------- RENDERING ------- */
     return <div //* CONTAINER
         className={classMerge(
@@ -35,11 +35,11 @@ function Logo() {
             ScreenSync <br />
             <span className={classMerge(
                 "rounded-full", //? Size
-                userID ? "bg-green-600" : "bg-red-600", //? Background
+                myInfo.id ? "bg-green-600" : "bg-red-600", //? Background
                 "flex justify-center items-center", //? Display
                 "font-[500] font-[Gotham] text-[0.75em] text-white italic", //? Text Styling
             )}>
-                {userID ? "Connected" : "Disconnected"}
+                {myInfo.id ? "Connected" : "Disconnected"}
             </span>
         </div>
     </div>
@@ -60,8 +60,8 @@ function Description() {
 function Input() {
     /* ----- STATES & HOOKS ----- */
     const {
-        socket, peer, userID, myIPv4,
-        name, setname,
+        socket, peer,
+        myInfo, setmyInfo,
         meetingCode, setmeetingCode,
     } = useGlobals()
     const [key, setKey] = useState<string>("")
@@ -73,13 +73,13 @@ function Input() {
     return <form //* INPUTS CONTAINER
         onSubmit={(thisElement) => { //? Start meeting
             thisElement.preventDefault()
-            if (name.length > 3) {
+            if (myInfo.name.length > 3) {
                 const room: RoomProps = {
                     id: v4(),
                     key: key,
-                    host: { id: userID, IPv4: myIPv4, name: name },
-                    participants: [{ id: userID, IPv4: myIPv4, name: name }],
-                    stream: { hostID: userID, id: "", presenting: false },
+                    host: myInfo,
+                    participants: [myInfo],
+                    stream: { hostID: myInfo.id, id: "", presenting: false },
                     entries: [],
                     chatlog: []
                 }
@@ -96,16 +96,16 @@ function Input() {
             className="flex flex-col gap-[0.5em]">
             <Textbox //* NAME
                 maxLength={32} containerClass="text-[12px]"
-                value={name} onChange={(thisElement) => setname(thisElement.target.value)}
+                value={myInfo.name} onChange={(thisElement) => setmyInfo(prev => ({ ...prev, name: thisElement.target.value }))}
                 id="name" useIcon iconSrc={require("@/public/images/Participants.svg")}
                 placeholder="What is your name?" />
-            {name.length > 3 && <Textbox //* KEY
+            {myInfo.name.length > 3 && <Textbox //* KEY
                 maxLength={32} containerClass="text-[12px]"
                 value={key} onChange={(thisElement) => setKey(thisElement.target.value)}
                 id="key" useIcon iconSrc={require("@/public/images/Key.svg")}
                 placeholder="Key is optional" />}
         </div>
-        {(name.length > 3 && userID && socket && peer) && <Button //* START MEETING BUTTON
+        {(myInfo.name.length > 3 && myInfo.id && socket && peer) && <Button //* START MEETING BUTTON
             type="submit"
             useIcon iconOverlay iconSrc={require("@/public/images/Join.svg")}
             className={classMerge(

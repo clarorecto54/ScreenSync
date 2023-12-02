@@ -35,7 +35,7 @@ function Dock() {
         mutestream, setmutestream,
     } = useSession()
     const {
-        socket, setname,
+        socket,
         meetingCode, setmeetingCode,
     } = useGlobals()
     /* -------- RENDERING ------- */

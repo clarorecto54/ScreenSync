@@ -8,7 +8,7 @@ import SystemPopup from "@/components/system.popup";
 
 export default function Home() {
   /* ----- STATES & HOOKS ----- */
-  const { name, roomList, systemPopup } = useGlobals()
+  const { myInfo, roomList, systemPopup } = useGlobals()
   /* -------- RENDERING ------- */
   return <div //* VIEWPORT
     className={classMerge(
@@ -22,7 +22,7 @@ export default function Home() {
         "transition-all duration-1000", //? Animation
       )}>
       {!systemPopup && <LoginForm />}
-      {(name.length > 3 && roomList.length !== 0 && !systemPopup) && <SessionList />}
+      {(myInfo.name.length > 3 && roomList.length !== 0 && !systemPopup) && <SessionList />}
       {systemPopup && <SystemPopup />}
     </div>
     <Image //* BACKGROUND IMAGE

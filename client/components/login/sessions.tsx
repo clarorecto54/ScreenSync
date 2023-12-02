@@ -45,7 +45,7 @@ export default function SessionList() {
 
 function SessionInfo({ id, host, participants, meetingKey }: { id: string, host: UserProps, participants: UserProps[], meetingKey: string }) {
     /* ----- STATES & HOOKS ----- */
-    const { socket, userID, name, myIPv4, setmeetingCode } = useGlobals()
+    const { socket, myInfo, setmeetingCode } = useGlobals()
     const [keyinput, setKeyinput] = useState<string>("")
     const [showInput, setShowInput] = useState<boolean>(false)
     const [wrongKey, setWrongKey] = useState<boolean>(false)
@@ -53,8 +53,7 @@ function SessionInfo({ id, host, participants, meetingKey }: { id: string, host:
     return <div //* SESSION INFO
         onClick={() => {
             if (!meetingKey) { //? Join meeting
-                const userInfo: UserProps = { id: userID, name: name, IPv4: myIPv4 }
-                socket?.emit("join-room", id, userInfo)
+                socket?.emit("join-room", id, myInfo)
             }
             else { setShowInput(true) }
         }}
@@ -84,8 +83,7 @@ function SessionInfo({ id, host, participants, meetingKey }: { id: string, host:
             onSubmit={(thisElement) => {
                 thisElement.preventDefault()
                 if (meetingKey === keyinput) { //? Join Room
-                    const userInfo: UserProps = { id: userID, name: name, IPv4: myIPv4 }
-                    socket?.emit("join-room", id, userInfo)
+                    socket?.emit("join-room", id, myInfo)
                 }
                 else { setWrongKey(true) }
             }}

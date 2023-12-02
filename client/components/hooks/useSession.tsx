@@ -1,5 +1,5 @@
 "use client"
-import { SessionProps } from "@/types/session.types"
+import { SessionProps, UserProps } from "@/types/session.types"
 import { ReactNode, createContext, useContext, useEffect, useState } from "react"
 import { useGlobals } from "./useGlobals"
 import { redirect, RedirectType } from "next/navigation"
@@ -10,12 +10,14 @@ const defaultValues: SessionProps = {
     mutestream: false,
     presenting: false,
     interactive: "",
+    muted: [],
     /* -------------------------- */
     sethost: () => { },
     setstreamAcces: () => { },
     setmutestream: () => { },
     setpresenting: () => { },
     setinteractive: () => { },
+    setmuted: () => { },
 }
 const context = createContext<SessionProps>(defaultValues)
 /* ------ HOOK PROVIDER ----- */
@@ -32,6 +34,7 @@ export function SessionContextProvider({ children }: { children: ReactNode }) {
     const [mutestream, setmutestream] = useState<boolean>(false)
     const [presenting, setpresenting] = useState<boolean>(false)
     const [interactive, setinteractive] = useState<string>("")
+    const [muted, setmuted] = useState<string[]>([])
     /* ---- SESSION VALIDATOR --- */
     useEffect(() => {
         !meetingCode && redirect("/", RedirectType.replace)
@@ -55,12 +58,14 @@ export function SessionContextProvider({ children }: { children: ReactNode }) {
         mutestream,
         presenting,
         interactive,
+        muted,
         /* -------------------------- */
         sethost,
         setstreamAcces,
         setmutestream,
         setpresenting,
         setinteractive,
+        setmuted,
     }
     return <context.Provider value={defaultValues}>{children}</context.Provider>
 }

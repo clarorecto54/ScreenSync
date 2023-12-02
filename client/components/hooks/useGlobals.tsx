@@ -1,6 +1,6 @@
 "use client"
 import { GlobalProps } from "@/types/globals.types";
-import { RoomProps } from "@/types/session.types";
+import { RoomProps, UserProps } from "@/types/session.types";
 import { SystemPopupProps } from "@/types/system.popup.types";
 import { RedirectType, redirect } from "next/navigation";
 import Peer from "peerjs";
@@ -10,19 +10,16 @@ import { Socket, io } from "socket.io-client";
 const defaultValues: GlobalProps = {
     socket: null,
     peer: null,
-    userID: "",
+    myInfo: { id: "", IPv4: "", name: "" },
     IPv4: "",
-    myIPv4: "",
-    name: "",
     meetingCode: "",
     systemPopup: null,
     roomList: [],
     /* -------------------------- */
     setsocket: () => { },
     setpeer: () => { },
-    setuserID: () => { },
+    setmyInfo: () => { },
     setIPv4: () => { },
-    setname: () => { },
     setmeetingCode: () => { },
     setsystemPopup: () => { },
 }
@@ -32,12 +29,10 @@ export function useGlobals() { return useContext<GlobalProps>(context) }
 /* --------- CONTEXT -------- */
 export function GlobalContextProvider({ children }: { children: ReactNode }) {
     /* ----- STATES & HOOKS ----- */
-    const [IPv4, setIPv4] = useState<string>("")
-    const [myIPv4, setmyIPv4] = useState<string>("")
     const [socket, setsocket] = useState<Socket | null>(null)
     const [peer, setpeer] = useState<Peer | null>(null)
-    const [userID, setuserID] = useState<string>("")
-    const [name, setname] = useState<string>("")
+    const [myInfo, setmyInfo] = useState<UserProps>({ id: "", IPv4: "", name: "" })
+    const [IPv4, setIPv4] = useState<string>("")
     const [meetingCode, setmeetingCode] = useState<string>("")
     const [systemPopup, setsystemPopup] = useState<SystemPopupProps | null>(null)
     const [roomList, setRoomList] = useState<RoomProps[]>([])
@@ -70,10 +65,10 @@ export function GlobalContextProvider({ children }: { children: ReactNode }) {
                 setmeetingCode(targetRoom)
             })
             socket.on("room-list", (rooms: RoomProps[]) => setRoomList(rooms))
-            socket.on("my-ipv4", (myIPv4: string) => setmyIPv4(myIPv4))
+            socket.on("my-ipv4", (myIPv4: string) => setmyInfo(prev => ({ ...prev, IPv4: myIPv4 })))
             socket.on("connect", () => {
                 if (typeof window !== "undefined") {
-                    setuserID(socket.id)
+                    setmyInfo(prev => ({ ...prev, id: socket.id }))
                     setpeer(new Peer(socket.id, {
                         host: IPv4,
                         port: 3002,
@@ -90,7 +85,7 @@ export function GlobalContextProvider({ children }: { children: ReactNode }) {
                     }))
                 }
             })
-            socket.on("disconnect", () => setuserID(""))
+            socket.on("disconnect", () => setmyInfo(prev => ({ ...prev, id: "" })))
         }
         return () => {
             if (socket) {
@@ -102,16 +97,16 @@ export function GlobalContextProvider({ children }: { children: ReactNode }) {
                     setmeetingCode(targetRoom)
                 })
                 socket.off("room-list", (rooms: RoomProps[]) => setRoomList(rooms))
-                socket.off("my-ipv4", (myIPv4: string) => setmyIPv4(myIPv4))
+                socket.off("my-ipv4", (myIPv4: string) => setmyInfo(prev => ({ ...prev, IPv4: myIPv4 })))
                 socket.off("connect", () => {
                     if (typeof window !== "undefined") {
-                        setuserID(socket.id)
+                        setmyInfo(prev => ({ ...prev, id: socket.id }))
                         setpeer(new Peer(socket.id, {
                             host: IPv4,
                             port: 3002,
                             path: "/",
                             secure: true,
-                            pingInterval: 40,
+                            pingInterval: 1000,
                             config: {
                                 'iceServers': [
                                     { url: "stun:192.168.2.49:3003" },
@@ -122,7 +117,7 @@ export function GlobalContextProvider({ children }: { children: ReactNode }) {
                         }))
                     }
                 })
-                socket.off("disconnect", () => setuserID(""))
+                socket.off("disconnect", () => setmyInfo(prev => ({ ...prev, id: "" })))
             }
         }
     }, [socket])
@@ -130,9 +125,8 @@ export function GlobalContextProvider({ children }: { children: ReactNode }) {
     const defaultValues: GlobalProps = {
         socket, setsocket,
         peer, setpeer,
-        userID, setuserID,
-        IPv4, setIPv4, myIPv4,
-        name, setname,
+        myInfo, setmyInfo,
+        IPv4, setIPv4,
         meetingCode, setmeetingCode,
         systemPopup, setsystemPopup,
         roomList,

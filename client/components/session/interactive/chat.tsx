@@ -1,34 +1,47 @@
 import Button from "@/components/atom/button";
 import Textbox from "@/components/atom/textbox";
+import { useGlobals } from "@/components/hooks/useGlobals";
 import { useSession } from "@/components/hooks/useSession";
 import classMerge from "@/components/utils/classMerge";
 import { MessageProps } from "@/types/session.types";
 import { useEffect, useRef, useState } from "react";
 export default function Chat() {
     /* ----- STATES & HOOKS ----- */
+    const { socket } = useGlobals()
     const { interactive, setinteractive } = useSession()
+    const [chatlog, setchatlog] = useState<MessageProps[]>([])
+    const [newchat, setnewchat] = useState<boolean>(false)
+    /* ------ EVENT HANDLER ----- */
+    useEffect(() => {
+        socket?.on("updated-chat", (data: MessageProps[]) => setchatlog(data))
+        socket?.on("new-chat", () => { !interactive.includes("chat") && setnewchat(true) })
+        return () => {
+            socket?.off("updated-chat", (data: MessageProps[]) => setchatlog(data))
+            socket?.off("new-chat", () => { !interactive.includes("chat") && setnewchat(true) })
+        }
+    }, [])
     /* -------- RENDERING ------- */
     return <div //* CONTAINER
         className="relative flex justify-center items-center">
-        {interactive.includes("chat") && <Log />}
+        {interactive.includes("chat") && <Log chatlog={chatlog} />}
         <Button //* CHAT
             circle useIcon iconOverlay iconSrc={require("@/public/images/Chat.svg")}
-            onClick={() => !interactive.includes("chat") ? setinteractive("chat") : setinteractive("")}
+            onClick={() => {
+                !interactive.includes("chat") ? setinteractive("chat") : setinteractive("")
+                setnewchat(false)
+            }}
+            useNotif={newchat}
             className={classMerge(
                 "bg-[#525252]", //? Background
                 "hover:bg-[#646464]", //? Hover
             )} />
     </div>
 }
-function Log() {
+function Log({ chatlog }: { chatlog: MessageProps[] }) {
     /* ----- STATES & HOOKS ----- */
+    const { socket, meetingCode, myInfo } = useGlobals()
+    const { muted } = useSession()
     const [message, setMessage] = useState<string>("")
-    const testData: MessageProps[] = [
-        { id: "001", name: "Claro", time: "4:03 AM", message: "Hi Sheila bbgirl" },
-        { id: "002", name: "Sheila", time: "4:03 AM", message: ["Hello", "Panget mo HAHAH"] },
-        { id: "001", name: "Claro", time: "4:04 AM", message: ["Awts huhu", "gg madamme gucha gucha ni awefaawefawefwf"] },
-        { id: "001", name: "Claro", time: "4:05 AM", message: "tara kain tayo" }
-    ]
     /* -------- RENDERING ------- */
     return <div //* POPUP
         className={classMerge(
@@ -45,19 +58,18 @@ function Log() {
                 "h-full w-full scroll-smooth", //? Size
                 "flex flex-col-reverse gap-[1em] overflow-y-scroll" //? Display
             )}>
-            {testData && testData.reverse().map(({ id, name, time, message }, index) => {
-                const tempName = "Sheila"
-                if (id !== "blockedID") { //? Filter muted participants
+            {chatlog && chatlog.slice().reverse().map(({ id, name, time, message }, index) => {
+                if (!muted.includes(id)) { //? Filter muted participants
                     return <div //* MESSAGE CONTAINER
                         key={index} className="w-full flex flex-col gap-[0.25em] pr-[1em]">
                         <div //* HEADER
                             className={classMerge(
                                 "w-full pl-[0.25em]", //? Base
                                 "flex items-center gap-[1em]", //? Display
-                                (tempName === name) && "flex-row-reverse", //? Conditional
+                                (myInfo.name === name) && "flex-row-reverse", //? Conditional
                                 "text-[0.8em] font-[Montserrat] font-[400]", //? Font
                             )}>
-                            {(tempName === name) ? "You" : name}
+                            {(myInfo.name === name) ? "You" : name}
                             <label //* TIME
                                 className="text-[0.75em] font-[300] ">
                                 {time}
@@ -71,11 +83,11 @@ function Log() {
                             {typeof message === "string" && //* SINGLE
                                 <div className={classMerge(
                                     "flex", //? Base
-                                    (tempName === name) ? "justify-end pl-[2em]" : "pr-[2em]"
+                                    (myInfo.name === name) ? "justify-end pl-[2em]" : "pr-[2em]"
                                 )}>
                                     <label className={classMerge(
                                         "bg-[#80808050] w-fit p-[0.5em]",
-                                        (tempName === name) ? "pl-[1.25em] pr-[0.75em] rounded-l-[1.5em] rounded-r-[0.5em] text-end" : "pl-[0.75em] pr-[1.25em] rounded-l-[0.5em] rounded-r-[1.5em]",
+                                        (myInfo.name === name) ? "pl-[1.25em] pr-[0.75em] rounded-l-[1.5em] rounded-r-[0.5em] text-end" : "pl-[0.75em] pr-[1.25em] rounded-l-[0.5em] rounded-r-[1.5em]",
                                     )}>
                                         {message}
                                     </label>
@@ -83,11 +95,11 @@ function Log() {
                             {typeof message === "object" && message.map((message, index) => { //* MULTI
                                 return <div key={index} className={classMerge(
                                     "flex", //? Base
-                                    (tempName === name) ? "justify-end pl-[2em]" : "pr-[2em]"
+                                    (myInfo.name === name) ? "justify-end pl-[2em]" : "pr-[2em]"
                                 )}>
                                     <label className={classMerge(
                                         "bg-[#80808050] w-fit p-[0.5em]",
-                                        (tempName === name) ? "pl-[1.25em] pr-[0.75em] rounded-l-[1.5em] rounded-r-[0.5em] text-end" : "pl-[0.75em] pr-[1.25em] rounded-l-[0.5em] rounded-r-[1.5em]",
+                                        (myInfo.name === name) ? "pl-[1.25em] pr-[0.75em] rounded-l-[1.5em] rounded-r-[0.5em] text-end" : "pl-[0.75em] pr-[1.25em] rounded-l-[0.5em] rounded-r-[1.5em]",
                                     )}>
                                         {message}
                                     </label>
@@ -97,12 +109,17 @@ function Log() {
                     </div>
                 }
             })}
-            {testData.length === 0 && <label
+            {chatlog.length === 0 && <label
                 className="h-full w-full text-[0.75em] font-[400] flex justify-center items-center">
                 No Messages
             </label>}
         </div>
         <form //* INPUTS
+            onSubmit={(thisElement) => {
+                thisElement.preventDefault()
+                message && socket?.emit("send-message", meetingCode, myInfo, message)
+                setMessage("")
+            }}
             className={classMerge(
                 "flex gap-[0.5em] justify-center items-center ", //? Base
             )}>
