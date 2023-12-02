@@ -4,30 +4,27 @@ import { useGlobals } from "../hooks/useGlobals";
 /* ----- MEETING HEADER ----- */
 export default function Header() {
     /* ----- STATES & HOOKS ----- */
-    const { socket, userID, IPv4 } = useGlobals()
+    const { socket, peer, userID, IPv4 } = useGlobals()
     const [serverTime, setServerTime] = useState<string>("")
     const [ping, setPing] = useState<number>(0)
     /* ------ EVENT HANDLER ----- */
     useEffect(() => {
         if (socket) {
+            setInterval(() => {
+                const start = Date.now();
+                socket.emit("ping", () => {
+                    const duration = Date.now() - start
+                    setPing(duration)
+                })
+            }, 500)
             socket.on("get-server-time", (time: string) => setServerTime(time))
-            socket.on("ping", (data: number) => {
-                const now = new Date()
-                const ping = now.getTime() - data
-                setPing(ping)
-            })
         }
         return () => {
             if (socket) {
                 socket.off("get-server-time", (time: string) => setServerTime(time))
-                socket.off("ping", (data: number) => {
-                    const now = new Date()
-                    const ping = now.getTime() - data
-                    setPing(ping)
-                })
             }
         }
-    }, [socket])
+    }, [])
     /* -------- RENDERING ------- */
     return <div //* CONTAINER
         className={classMerge(
@@ -52,7 +49,7 @@ export default function Header() {
         </label>
         <label //* VERSION
             className="font-[400] text-end">
-            {userID ? `${IPv4}:3000` : "Disconnected"}
+            {(userID && socket && peer) ? `${IPv4}:3000` : "Disconnected"}
         </label>
     </div>
 }

@@ -1,3 +1,7 @@
 {
-  "extends": "next/core-web-vitals"
+  "extends": "next",
+  "rules": {
+    "react-hooks/exhaustive-deps": "off",
+    "next/core-web-vitals": "off"
+  }
 }

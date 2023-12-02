@@ -19,10 +19,11 @@ export default function SocketListener() {
         })
         //* SERVER TIME & PING
         setInterval(() => {
-            const now = new Date()
-            socket.local.emit("get-server-time", TimeLog())
-            socket.local.emit("ping", now.getTime())
+            socket.local.emit("get-server-time", TimeLog(true))
         }, 1000)
+        socket.on("ping", (callback: () => void) => {
+            callback()
+        })
         //* GETTING IPV4
         socket.on("my-ipv4", () => {
             io.to(socket.id).emit("my-ipv4", socket.handshake.address)

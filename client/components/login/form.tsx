@@ -13,7 +13,7 @@ export default function LoginForm() {
     return <div //* CONTAINER
         className={classMerge(
             "p-[2em] px-[3em]", //? Sizing
-            "bg-white rounded-[2em] panelStyle shadow-lg drop-shadow-lg", //? Background
+            "bg-white rounded-[2em] panelStyle backdrop-blur-md shadow-lg drop-shadow-lg", //? Background
             "flex flex-col justify-center items-center gap-[1em]", //? Display
         )}>
         <Logo />
@@ -60,7 +60,7 @@ function Description() {
 function Input() {
     /* ----- STATES & HOOKS ----- */
     const {
-        socket, userID, myIPv4,
+        socket, peer, userID, myIPv4,
         name, setname,
         meetingCode, setmeetingCode,
     } = useGlobals()
@@ -105,16 +105,15 @@ function Input() {
                 id="key" useIcon iconSrc={require("@/public/images/Key.svg")}
                 placeholder="Key is optional" />}
         </div>
-        {
-            name.length > 3 && <Button //* START MEETING BUTTON
-                type="submit"
-                useIcon iconOverlay iconSrc={require("@/public/images/Join.svg")}
-                className={classMerge(
-                    "bg-red-500 hover:bg-red-700 hover:scale-90 text-[12px]", //? Base
-                    "transition-all duration-300", //? Animation
-                )}>
-                Start Meeting
-            </Button>
+        {(name.length > 3 && userID && socket && peer) && <Button //* START MEETING BUTTON
+            type="submit"
+            useIcon iconOverlay iconSrc={require("@/public/images/Join.svg")}
+            className={classMerge(
+                "bg-red-500 hover:bg-red-700 hover:scale-90 text-[12px]", //? Base
+                "transition-all duration-300", //? Animation
+            )}>
+            Start Meeting
+        </Button>
         }
     </form >
 }

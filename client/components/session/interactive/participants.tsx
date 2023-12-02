@@ -8,27 +8,8 @@ import { useEffect, useState } from "react";
 
 export default function Participants() {
     /* ----- STATES & HOOKS ----- */
+    const { socket, meetingCode } = useGlobals()
     const { interactive, setinteractive } = useSession()
-    /* -------- RENDERING ------- */
-    return <div
-        className="relative flex justify-center items-center">
-        {interactive.includes("participants") && <Popup />}
-        <Button //* PARTICIPANTS
-            circle useIcon iconOverlay iconSrc={require("@/public/images/Participants.svg")}
-            onClick={() => !interactive.includes("participants") ? setinteractive("participants") : setinteractive("")}
-            className={classMerge(
-                "bg-[#525252]", //? Background
-                "hover:bg-[#646464]", //? Hover
-            )} />
-    </div>
-}
-function Popup() {
-    /* ----- STATES & HOOKS ----- */
-    const { socket, userID, name, meetingCode } = useGlobals()
-    const { host } = useSession()
-    const [search, setSearch] = useState<string>("")
-    const [selected, setSelected] = useState<string>("")
-    const [muted, setMuted] = useState<string[]>([])
     const [participantList, setParticipantList] = useState<UserProps[]>([])
     /* ------ EVENT HANDLER ----- */
     useEffect(() => {
@@ -42,10 +23,30 @@ function Popup() {
     }, [])
     /* -------- RENDERING ------- */
     return <div
+        className="relative flex justify-center items-center">
+        {interactive.includes("participants") && <Popup participantList={participantList} />}
+        <Button //* PARTICIPANTS
+            circle useIcon iconOverlay iconSrc={require("@/public/images/Participants.svg")}
+            onClick={() => !interactive.includes("participants") ? setinteractive("participants") : setinteractive("")}
+            className={classMerge(
+                "bg-[#525252]", //? Background
+                "hover:bg-[#646464]", //? Hover
+            )} >{participantList.length}</Button>
+    </div>
+}
+function Popup({ participantList }: { participantList: UserProps[] }) {
+    /* ----- STATES & HOOKS ----- */
+    const { userID, name } = useGlobals()
+    const { host } = useSession()
+    const [search, setSearch] = useState<string>("")
+    const [selected, setSelected] = useState<string>("")
+    const [muted, setMuted] = useState<string[]>([])
+    /* -------- RENDERING ------- */
+    return <div
         className={classMerge(
             "min-w-[24em] max-w-[24em] aspect-square p-[2em] py-[1.5em] rounded-[2em]", //? Size
             "absolute flex flex-col gap-[1em] -translate-y-[19em]", //? Display
-            "backdrop-brightness-75", //? Background
+            "backdrop-blur-md backdrop-brightness-50", //? Background
         )}>
         <label //* HEADER
             className="text-[1.25em] font-[Montserrat] font-[600]">

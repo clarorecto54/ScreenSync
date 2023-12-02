@@ -34,7 +34,7 @@ function Log() {
         className={classMerge(
             "min-w-[24em] max-w-[24em] aspect-square p-[2em] py-[1.5em] rounded-[2em]", //? Size
             "absolute flex flex-col gap-[1em] -translate-y-[19em]", //? Display
-            "backdrop-brightness-75", //? Background
+            "backdrop-blur-md backdrop-brightness-50", //? Background
         )}>
         <label //* HEADER
             className="text-[1.25em] font-[Montserrat] font-[600]">

@@ -13,7 +13,7 @@ export default function SessionList() {
     return <div //* CONTAINER
         className={classMerge(
             "min-w-[20em] max-w-min max-h-min p-[2em] rounded-[2em]", //? Size
-            "bg-white panelStyle shadow-lg drop-shadow-lg", //? Background
+            "bg-white panelStyle shadow-lg drop-shadow-lg backdrop-blur-md", //? Background
             "flex gap-[0.75em] flex-col items-center", //? Display
             "font-[Montserrat] font-[600] leading-5 Unselectable", //? Font
         )}>
