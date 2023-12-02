@@ -4,10 +4,11 @@ import classMerge from "@/components/utils/classMerge";
 import LoginForm from "@/components/login/form";
 import SessionList from "@/components/login/sessions";
 import { useGlobals } from "@/components/hooks/useGlobals";
+import SystemPopup from "@/components/system.popup";
 
 export default function Home() {
   /* ----- STATES & HOOKS ----- */
-  const { name } = useGlobals()
+  const { name, roomList, systemPopup } = useGlobals()
   /* -------- RENDERING ------- */
   return <div //* VIEWPORT
     className={classMerge(
@@ -20,8 +21,9 @@ export default function Home() {
         "focus-within:backdrop-blur-md focus-within:backdrop-brightness-50", //? Trigger
         "transition-all duration-1000", //? Animation
       )}>
-      <LoginForm />
-      {name.length > 3 && <SessionList />}
+      {!systemPopup && <LoginForm />}
+      {(name.length > 3 && roomList.length !== 0 && !systemPopup) && <SessionList />}
+      {systemPopup && <SystemPopup />}
     </div>
     <Image //* BACKGROUND IMAGE
       priority

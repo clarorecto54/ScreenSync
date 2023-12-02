@@ -27,6 +27,7 @@ interface MessageProps {
     time: string
 }
 interface StreamProps {
+    hostID: string
     id: string
     presenting: boolean
 }

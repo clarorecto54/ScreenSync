@@ -1,15 +1,17 @@
-import { peer } from "../../server"
+import { io, peer } from "../../server"
 import { ServerLog } from "../log"
+
+export var PeerCount: number = 0
+
 export default function PeerListener() {
-    var PeerCount: number = 0
     peer.on("connection", (client) => {
         PeerCount += 1
-        ServerLog("peer", `Total Peer: ${PeerCount}`)
-        ServerLog("peer", `Peer Connected: ${client.getId()}`)
+        ServerLog("peer", `[ CONNECTED ] ${client.getId()}`, true)
+        ServerLog("server", `[ CLIENTS ] Socket: ${io.sockets.sockets.size} | Peer: ${PeerCount}`, true)
     })
     peer.on("disconnect", (client) => {
         PeerCount -= 1
-        ServerLog("peer", `Total Peer: ${PeerCount}`)
-        ServerLog("peer", `Peer Disconnected: ${client.getId()}`)
+        ServerLog("peer", `[ DISCONNECTED ] ${client.getId()}`, true)
+        ServerLog("server", `[ CLIENTS ] Socket: ${io.sockets.sockets.size} | Peer: ${PeerCount}`, true)
     })
 }

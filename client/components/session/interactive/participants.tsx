@@ -4,7 +4,7 @@ import { useGlobals } from "@/components/hooks/useGlobals";
 import { useSession } from "@/components/hooks/useSession";
 import classMerge from "@/components/utils/classMerge";
 import { UserProps } from "@/types/session.types";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export default function Participants() {
     /* ----- STATES & HOOKS ----- */
@@ -24,14 +24,22 @@ export default function Participants() {
 }
 function Popup() {
     /* ----- STATES & HOOKS ----- */
-    const { userID } = useGlobals()
+    const { socket, userID, name, meetingCode } = useGlobals()
+    const { host } = useSession()
     const [search, setSearch] = useState<string>("")
     const [selected, setSelected] = useState<string>("")
     const [muted, setMuted] = useState<string[]>([])
-    const testData: UserProps[] = [
-        { id: "001", name: "Sheila Mae Carmen", IPv4: "192.168.2.49" },
-        { id: "002", name: "Trisha Mariz Rodrin Tenorio", IPv4: "192.168.2.50" }
-    ]
+    const [participantList, setParticipantList] = useState<UserProps[]>([])
+    /* ------ EVENT HANDLER ----- */
+    useEffect(() => {
+        //* EMIT (REQ)
+        socket?.emit("participant-list", meetingCode)
+        //* ON (RES)
+        socket?.on("participant-list", (participantList: UserProps[]) => setParticipantList(participantList))
+        return () => {
+            socket?.off("participant-list", (participantList: UserProps[]) => setParticipantList(participantList))
+        }
+    }, [])
     /* -------- RENDERING ------- */
     return <div
         className={classMerge(
@@ -48,6 +56,7 @@ function Popup() {
             id="message" placeholder="Search someone here"
             useIcon iconOverlay iconSrc={require("@/public/images/Search.svg")}
             onChange={(thisElement) => setSearch(thisElement.target.value)}
+            onFocus={() => setSelected("")}
             iconClass="bg-transparent"
             containerClass="focus-within:border-0 focus-within:bg-[#88888850] w-full"
             className={classMerge(
@@ -65,19 +74,17 @@ function Popup() {
                     "w-full flex gap-[0.5em] justify-between items-center group", //? Base
                     "text-[1em] font-[Montserrat] font-[400] ", //? Font
                 )}>
-                Claro Recto ( You )
-                <div //* OPTIONS CONTAINER
+                {name} ( You )
+                {participantList.length > 1 && <div //* OPTIONS CONTAINER
                     className="flex justify-center items-center">
                     {selected.includes(userID) && <div //* OPTIONS
-                        className={classMerge(
-                            "-translate-y-[7.5em]", //? Base
-                            "absolute flex flex-col gap-[0.5em]", //? Display
-                        )}>
+                        style={{ translate: `0 -${host ? 7.5 : 4}em` }}
+                        className="absolute flex flex-col gap-[0.5em]">
                         <Button //* MUTE ALL
                             circle useIcon iconOverlay iconSrc={require("@/public/images/Mute.svg")}
                             onClick={() => {
                                 if (muted.length === 0) { //? Mute All
-                                    setMuted(testData.filter(mute => mute.id !== userID).map(target => target.id))
+                                    setMuted(participantList.filter(mute => mute.id !== userID).map(target => target.id))
                                 } else { //? Unmute All
                                     setMuted([])
                                 }
@@ -89,7 +96,7 @@ function Popup() {
                             )}>
                             {muted.length === 0 ? "Mute All" : "Unmute All"}
                         </Button>
-                        <Button //* ALERT ALL
+                        {host && <Button //* ALERT ALL
                             circle useIcon iconSrc={require("@/public/images/Alert.svg")}
                             className={classMerge(
                                 "bg-[#F9AE25] text-[14px] text-black drop-shadow-md", //? Base
@@ -97,8 +104,8 @@ function Popup() {
                                 "transition-all duration-500", //? Animation
                             )}>
                             Alert All
-                        </Button>
-                        <Button //* KICK ALL
+                        </Button>}
+                        {host && <Button //* KICK ALL
                             circle useIcon iconSrc={require("@/public/images/Kick.svg")}
                             className={classMerge(
                                 "bg-[#E4280E] brightness-105 text-[14px] text-black drop-shadow-md", //? Base
@@ -106,7 +113,7 @@ function Popup() {
                                 "transition-all duration-500", //? Animation
                             )}>
                             Kick All
-                        </Button>
+                        </Button>}
                     </div>}
                     <Button //* OPTIONS TRIGGER
                         circle iconOverlay useIcon iconSrc={require("@/public/images/3 Dots.svg")}
@@ -116,10 +123,10 @@ function Popup() {
                             "group group-hover:opacity-100", //? Conditional
                             "transition-opacity duration-500", //? Animation
                         )} />
-                </div>
+                </div>}
             </div>}
-            {testData && testData.map(({ id, name, IPv4 }, index) => {
-                if (name.toUpperCase().includes(search.toUpperCase())) {
+            {participantList && participantList.map(({ id, name, IPv4 }, index) => {
+                if (name.toUpperCase().includes(search.toUpperCase()) && userID !== id) {
                     return <div //* PARTICIPANTS TAB
                         key={index}
                         className={classMerge(
@@ -130,10 +137,8 @@ function Popup() {
                         <div //* OPTIONS CONTAINER
                             className="flex justify-center items-center">
                             {selected.includes(id) && <div //* OPTIONS
-                                className={classMerge(
-                                    "-translate-y-[7.5em]", //? Base
-                                    "absolute flex flex-col gap-[0.5em]", //? Display
-                                )}>
+                                style={{ translate: `0 -${host ? 7.5 : 4}em` }}
+                                className="absolute flex flex-col gap-[0.5em]">
                                 <Button //* Mute
                                     circle useIcon iconOverlay iconSrc={require("@/public/images/Mute.svg")}
                                     onClick={() => {
@@ -150,7 +155,7 @@ function Popup() {
                                     )}>
                                     {!muted.includes(id) ? "Mute" : "Unmute"}
                                 </Button>
-                                <Button //* Alert
+                                {host && <Button //* Alert
                                     circle useIcon iconSrc={require("@/public/images/Alert.svg")}
                                     className={classMerge(
                                         "bg-[#F9AE25] text-[14px] text-black drop-shadow-md", //? Base
@@ -158,8 +163,8 @@ function Popup() {
                                         "transition-all duration-500", //? Animation
                                     )}>
                                     Alert
-                                </Button>
-                                <Button
+                                </Button>}
+                                {host && <Button
                                     circle useIcon iconSrc={require("@/public/images/Kick.svg")}
                                     className={classMerge(
                                         "bg-[#E4280E] brightness-105 text-[14px] text-black drop-shadow-md", //? Base
@@ -167,7 +172,7 @@ function Popup() {
                                         "transition-all duration-500", //? Animation
                                     )}>
                                     Kick
-                                </Button>
+                                </Button>}
                             </div>}
                             <Button //* OTPIONS TRIGGER
                                 circle iconOverlay useIcon iconSrc={require("@/public/images/3 Dots.svg")}

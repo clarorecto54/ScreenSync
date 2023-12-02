@@ -6,7 +6,7 @@ import { TimeLog } from "./system/log"
 import Turn from "node-turn"
 import GETIP from "./system/ipv4"
 import SocketListener from "./system/socket/socket"
-import GracefulShutdown from "./system/cleanups"
+import { GracefulShutdown } from "./system/cleanups"
 import PeerListener from "./system/peer/peer"
 /* ----- INITIALIZATION ----- */
 export const httpsServer = createServer({

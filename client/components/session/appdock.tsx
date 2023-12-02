@@ -30,9 +30,14 @@ export default function AppDock() {
 function Dock() {
     /* ----- STATES & HOOKS ----- */
     const {
+        host,
         presenting, setpresenting,
-        mutestream, setmutestream
+        mutestream, setmutestream,
     } = useSession()
+    const {
+        socket, setname,
+        meetingCode, setmeetingCode,
+    } = useGlobals()
     /* -------- RENDERING ------- */
     return <div //* CONTAINER
         className="flex gap-[16px] justify-center items-center">
@@ -61,6 +66,10 @@ function Dock() {
             )} />
         <Button //* END CALL
             circle useIcon iconOverlay iconSrc={require("@/public/images/End Call.svg")}
+            onClick={() => {
+                socket?.emit("leave-room", meetingCode)
+                setmeetingCode("")
+            }}
             containerClass="w-[6em]"
             className={classMerge(
                 "bg-[#DF2020]", //? Background

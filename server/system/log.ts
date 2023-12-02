@@ -7,6 +7,10 @@ export function TimeLog(seconds?: boolean) {
     })
 }
 /* ------- SERVER LOG ------- */
-export function ServerLog(server: "socket" | "peer", message: string) {
-    console.log(`[ ${TimeLog(true)} ][ LOG ][ ${server.toUpperCase()} ] ${message}`)
+export function ServerLog(server: "socket" | "peer" | "server", message: string, closeup?: boolean) {
+    if (closeup) {
+        console.log(`[ ${TimeLog(true)} ][ LOG ][ ${server.toUpperCase()} ]${message}`)
+    } else {
+        console.log(`[ ${TimeLog(true)} ][ LOG ][ ${server.toUpperCase()} ] ${message}`)
+    }
 }

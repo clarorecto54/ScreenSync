@@ -12,14 +12,19 @@ export default function Header() {
         if (socket) {
             socket.on("get-server-time", (time: string) => setServerTime(time))
             socket.on("ping", (data: number) => {
-                const now = new Date();
-                const ping = now.getTime() - data;
-                setPing(ping);
-            });
+                const now = new Date()
+                const ping = now.getTime() - data
+                setPing(ping)
+            })
         }
         return () => {
             if (socket) {
                 socket.off("get-server-time", (time: string) => setServerTime(time))
+                socket.off("ping", (data: number) => {
+                    const now = new Date()
+                    const ping = now.getTime() - data
+                    setPing(ping)
+                })
             }
         }
     }, [socket])
