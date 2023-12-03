@@ -1,7 +1,7 @@
 import { write, parse, SessionDescription, MediaAttributes } from "sdp-transform"
 export function transformSDP(sdp: string) {
     const modifiedSDP: SessionDescription = parse(sdp)
-    const quality: number = 1000000 * 32
+    const quality: number = 1000000 * 100
     const fps: number = 60
     //* INITAITE NEW CODECS
     const payloads: number[] = []
@@ -31,14 +31,14 @@ export function transformSDP(sdp: string) {
                 "packetization-mode=1",
                 "max-fs=10200",
                 `max-fr=${fps}`,
-                `max-mbps=${(quality / 1000) * 0.5}`
+                `max-mbps=${quality / 1000}`
             ].join(";")
         },
     ]
     //* TEMPLATES
     const GoogleFlags = [
-        `x-google-start-bitrate=${(quality / 1000) * 0.25}`,
-        `x-google-max-bitrate=${(quality / 1000) * 0.5}`,
+        `x-google-start-bitrate=${(quality / 1000) * 0.75}`,
+        `x-google-max-bitrate=${quality / 1000}`,
         "x-google-max-quantization=40",
         "x-google-min-quantization=10",
         "x-google-buffer-initial-delay=250",
@@ -115,15 +115,15 @@ export function transformSDP(sdp: string) {
                 modifiedSDP.media[mediaIndex].fmtp = [] //? Clear out deafult configs
                 modifiedSDP.media[mediaIndex].rtcpFb = [] //? Clear out acknowledgement
                 //* APPLYING NEW CODECS
-                modifiedSDP.media[mediaIndex].payloads = "96 97"
+                modifiedSDP.media[mediaIndex].payloads = "103 104"
                 modifiedSDP.media[mediaIndex].rtp = [
-                    { payload: 96, codec: "red", rate: 48000, encoding: 2 },
-                    { payload: 97, codec: "opus", rate: 48000, encoding: 2 }
+                    { payload: 103, codec: "red", rate: 48000, encoding: 2 },
+                    { payload: 104, codec: "opus", rate: 48000, encoding: 2 }
                 ]
                 modifiedSDP.media[mediaIndex].fmtp = [
-                    { payload: 96, config: "97/97" },
+                    { payload: 103, config: "104/104" },
                     {
-                        payload: 97, config: [
+                        payload: 104, config: [
                             "stereo=1",
                             "sprop-stereo=1",
                             "useinbandfec=1",
@@ -139,7 +139,7 @@ export function transformSDP(sdp: string) {
                         ].join(";")
                     }
                 ]
-                modifiedSDP.media[mediaIndex].rtcpFb = generateRTCPFB([97])
+                modifiedSDP.media[mediaIndex].rtcpFb = generateRTCPFB([104])
                 break
             default:
                 break
