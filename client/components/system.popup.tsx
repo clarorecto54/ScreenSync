@@ -33,7 +33,10 @@ export default function SystemPopup() {
         <div className="flex gap-[0.5em] justify-center items-center">
             {systemPopup?.action && <Button //* ACTION BUTTON
                 circle useIcon iconOverlay iconSrc={require("@/public/images/Check.svg")}
-                onClick={systemPopup.action}
+                onClick={() => {
+                    (systemPopup.action && systemPopup.action())
+                    setsystemPopup(null)
+                }}
                 className={classMerge(
                     "bg-green-500 text-[0.6em]", //? Base
                     "hover:scale-90 transition-all duration-500", //? Animation

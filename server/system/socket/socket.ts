@@ -5,6 +5,7 @@ import { PeerCount } from "../peer/peer"
 import ChatSystem from "./chat"
 import InteractiveSystem from "./interactive"
 import RoomSystem from "./room"
+import StreamSystem from "./stream"
 
 export default function SocketListener() {
     io.on("connection", socket => {
@@ -34,5 +35,6 @@ export default function SocketListener() {
         RoomSystem(socket)
         ChatSystem(socket)
         InteractiveSystem(socket)
+        StreamSystem(socket)
     })
 }
