@@ -4,23 +4,11 @@ import { useGlobals } from "@/components/hooks/useGlobals";
 import { useSession } from "@/components/hooks/useSession";
 import classMerge from "@/components/utils/classMerge";
 import { UserProps } from "@/types/session.types";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 export default function Participants() {
     /* ----- STATES & HOOKS ----- */
-    const { socket, meetingCode } = useGlobals()
-    const { interactive, setinteractive } = useSession()
-    const [participantList, setParticipantList] = useState<UserProps[]>([])
-    /* ------ EVENT HANDLER ----- */
-    useEffect(() => {
-        //* EMIT (REQ)
-        socket?.emit("participant-list", meetingCode)
-        //* ON (RES)
-        socket?.on("participant-list", (participantList: UserProps[]) => setParticipantList(participantList))
-        return () => {
-            socket?.off("participant-list", (participantList: UserProps[]) => setParticipantList(participantList))
-        }
-    }, [])
+    const { participantList, interactive, setinteractive } = useSession()
     /* -------- RENDERING ------- */
     return <div
         className="relative flex justify-center items-center">

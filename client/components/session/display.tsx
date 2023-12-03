@@ -1,3 +1,4 @@
+import { useEffect, useRef } from "react";
 import AnimatedLogo from "../animated.logo";
 import { useSession } from "../hooks/useSession";
 import classMerge from "../utils/classMerge";
@@ -34,7 +35,25 @@ function DefaultDisplay() {
 }
 function StreamDisplay() {
     /* ----- STATES & HOOKS ----- */
-    const { presenting } = useSession()
+    const streamRef = useRef<HTMLVideoElement>(null)
+    const {
+        presenting, stream, mutestream,
+        fullscreen, setfullscreen,
+    } = useSession()
+    /* ------ EVENT HANDLER ----- */
+    useEffect(() => {
+        const target = streamRef.current
+        if (target) {
+            if (stream) { target.srcObject = stream }
+            else { target.srcObject = null }
+            if (fullscreen) {
+                target.requestFullscreen({ navigationUI: "hide" }).then(() => {
+                    setfullscreen(false)
+                    return
+                })
+            }
+        }
+    }, [stream, fullscreen])
     /* -------- RENDERING ------- */
     return <div //* CONTAINER
         className={classMerge(
@@ -44,6 +63,20 @@ function StreamDisplay() {
             !presenting && "opacity-0",//? Conditional
             "transition-[opacity] duration-1000", //? Animation
         )}>
-
+        {!stream && <div className="h-full w-full font-[600] font-[Montserrat] flex justify-center items-center">No Stream</div>}
+        {stream && <video
+            autoPlay
+            ref={streamRef}
+            muted={mutestream}
+            className="h-full w-full rounded-[2em] overflow-hidden"
+            style={{
+                colorAdjust: "exact",
+                colorInterpolation: "sRGB",
+                colorRendering: "optimizeQuality",
+                textRendering: "optimizeLegibility",
+                shapeRendering: "geometricPrecision",
+                aspectRatio: stream.getVideoTracks()[0].getSettings().aspectRatio
+            }}
+        />}
     </div>
 }

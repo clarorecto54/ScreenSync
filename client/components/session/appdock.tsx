@@ -7,6 +7,7 @@ import Reaction from "./dock/reaction"
 import Chat from "./interactive/chat"
 import Participants from "./interactive/participants"
 import { UserProps } from "@/types/session.types"
+import { transformSDP } from "../utils/sdp.transform"
 
 export default function AppDock() {
     /* ----- STATES & HOOKS ----- */
@@ -32,19 +33,27 @@ export default function AppDock() {
 function Dock() {
     /* ----- STATES & HOOKS ----- */
     const {
-        host,
-        streamAcces, setstreamAcces,
+        host, participantList, setfullscreen,
+        stream, setstream,
+        calls, setcalls,
+        streamAccess, setstreamAcces,
         presenting, setpresenting,
         mutestream, setmutestream,
     } = useSession()
     const {
-        socket, myInfo, setsystemPopup,
+        socket, peer, myInfo, setsystemPopup,
         meetingCode, setmeetingCode,
     } = useGlobals()
     const [requestCooldown, setRequestCooldown] = useState<boolean>(false)
     const [noRequest, setNoRequest] = useState<boolean>(false)
     /* ------ EVENT HANDLER ----- */
     useEffect(() => {
+        socket?.on("get-stream", (targetID: string) => {
+            if (peer && stream) {
+                const makeCall = peer.call(targetID, stream, { sdpTransform: transformSDP })
+                setcalls(prev => [...prev, makeCall])
+            }
+        })
         socket?.on("streaming", () => {
             if (!host) {
                 setstreamAcces(false)
@@ -53,7 +62,7 @@ function Dock() {
             }
         })
         socket?.on("avail-req", () => {
-            if (!host || streamAcces) {
+            if (!host || streamAccess) {
                 setNoRequest(false)
                 setstreamAcces(false)
             }
@@ -79,6 +88,12 @@ function Dock() {
             } else { setRequestCooldown(true) }
         })
         return () => {
+            socket?.off("get-stream", (targetID: string) => {
+                if (peer && stream) {
+                    const makeCall = peer.call(targetID, stream, { sdpTransform: transformSDP })
+                    setcalls(prev => [...prev, makeCall])
+                }
+            })
             socket?.off("streaming", () => {
                 if (!host) {
                     setstreamAcces(false)
@@ -87,7 +102,7 @@ function Dock() {
                 }
             })
             socket?.off("avail-req", () => {
-                if (!host || streamAcces) {
+                if (!host || streamAccess) {
                     setNoRequest(false)
                     setstreamAcces(false)
                 }
@@ -113,7 +128,7 @@ function Dock() {
                 } else { setRequestCooldown(true) }
             })
         }
-    }, [host])
+    }, [host, peer, stream])
     useEffect(() => {
         requestCooldown && setTimeout(() => {
             setRequestCooldown(false)
@@ -123,13 +138,14 @@ function Dock() {
     return <div //* CONTAINER
         className="flex gap-[16px] justify-center items-center">
         <Reaction />
-        {presenting && <Button //* FULLSCREEN
+        {(presenting && (!host && !streamAccess)) && <Button //* FULLSCREEN
             circle useIcon iconOverlay iconSrc={require("@/public/images/Fullscreen.svg")}
+            onClick={() => setfullscreen(true)}
             className={classMerge(
                 "bg-[#525252]", //? Background
                 "hover:bg-[#646464]", //? Hover
             )} />}
-        {(presenting && (!host && !streamAcces)) && <Button //* MUTE
+        {(presenting && (!host && !streamAccess)) && <Button //* MUTE
             circle useIcon iconSrc={mutestream ? require("@/public/images/Audio (1).svg") : require("@/public/images/Audio (2).svg")}
             iconOverlay customOverlay={mutestream ? "redOverlay" : undefined}
             onClick={() => setmutestream(!mutestream)}
@@ -137,14 +153,50 @@ function Dock() {
                 "bg-[#525252]", //? Background
                 "hover:bg-[#646464]", //? Hover
             )} />}
-        {(!presenting && !requestCooldown && !noRequest && (host || streamAcces || !streamAcces)) && < Button //* SHARE SCREEN
+        {(!presenting && !requestCooldown && !noRequest && (host || streamAccess || !streamAccess)) && < Button //* SHARE SCREEN
             circle useIcon iconSrc={require("@/public/images/Share Screen (2).svg")}
-            iconOverlay customOverlay={(presenting || (!streamAcces && !host)) ? "redOverlay" : undefined}
-            onClick={() => {
-                if (streamAcces || host) {
+            iconOverlay customOverlay={(presenting || (!streamAccess && !host)) ? "redOverlay" : undefined}
+            onClick={async () => {
+                if (streamAccess || host) {
+                    if (socket && peer && navigator.mediaDevices.getDisplayMedia) {
+                        //* GET DISPLAY
+                        const mainStream = await navigator.mediaDevices.getDisplayMedia({ audio: true, video: true })
+                            .then(async (originalStream) => {
+                                //* TRACK MODIFICATION
+                                for (const track of originalStream.getTracks()) {
+                                    //* QUALITY MODIFICATION
+                                    await track.applyConstraints({
+                                        displaySurface: { exact: "window" },
+                                        frameRate: { exact: 60 },
+                                        channelCount: { exact: 1 },
+                                        echoCancellation: { exact: false },
+                                        noiseSuppression: { exact: false },
+                                        sampleRate: { min: 44100, max: 88200, ideal: 88200 },
+                                        sampleSize: { min: 16, max: 24, ideal: 24 }
+                                    }).then(() => { return }).catch(err => err)
+                                    // .catch(err => console.log("Kind ", track.kind, ": ", err))
+                                    //* ADD EVENT LISTENER
+                                    await track.addEventListener("ended", function onEnded() {
+                                        ((host || streamAccess) && (socket?.emit("stop-stream", meetingCode)))
+                                        setpresenting(false)
+                                        setstreamAcces(false)
+                                        setNoRequest(false)
+                                        track.removeEventListener("ended", onEnded)
+                                    })
+                                }
+                                return originalStream
+                            })
+                        setstream(mainStream)
+                        participantList.forEach(client => {
+                            if (client.id !== myInfo.id) {
+                                const makeCall = peer.call(client.id, mainStream, { sdpTransform: transformSDP })
+                                setcalls(prev => [...prev, makeCall])
+                            }
+                        })
+                    }
                     socket?.emit("start-stream", meetingCode, myInfo)
                     setpresenting(true)
-                    // TODO STREAMING & PEER INITIALIZATION
+                    setmutestream(true)
                 } else {
                     socket?.emit("req-stream", meetingCode, myInfo)
                     setRequestCooldown(true)
@@ -154,11 +206,17 @@ function Dock() {
                 "bg-[#525252]", //? Background
                 "hover:bg-[#646464]", //? Hover
             )} />}
-        {(presenting && (host || streamAcces)) && < Button //* STOP SHARE SCREEN
+        {(presenting && (host || streamAccess)) && < Button //* STOP SHARE SCREEN
             circle useIcon iconSrc={require("@/public/images/Share Screen (1).svg")}
-            iconOverlay customOverlay={(presenting || (!streamAcces && !host)) ? "redOverlay" : undefined}
+            iconOverlay customOverlay={(presenting || (!streamAccess && !host)) ? "redOverlay" : undefined}
             onClick={() => {
+                if (host || streamAccess) {
+                    calls.forEach(call => call.close())
+                    setcalls([])
+                }
+                if (stream) { for (const track of stream.getTracks()) { track.stop() } }
                 socket?.emit("stop-stream", meetingCode)
+                setstream(null)
                 setpresenting(false)
                 setstreamAcces(false)
                 setNoRequest(false)
@@ -170,6 +228,18 @@ function Dock() {
         <Button //* END CALL
             circle useIcon iconOverlay iconSrc={require("@/public/images/End Call.svg")}
             onClick={() => {
+                if (stream) {
+                    if (host || streamAccess) {
+                        calls.forEach(call => call.close())
+                        setcalls([])
+                    }
+                    if (stream) { for (const track of stream.getTracks()) { track.stop() } }
+                    (host || streamAccess) && socket?.emit("stop-stream", meetingCode)
+                    setstream(null)
+                    setpresenting(false)
+                    setstreamAcces(false)
+                    setNoRequest(false)
+                }
                 socket?.emit("leave-room", meetingCode)
                 setmeetingCode("")
             }}

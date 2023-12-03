@@ -1,12 +1,27 @@
 import { Socket } from "socket.io";
 import { RoomList } from "../cleanups";
 import { UserProps } from "./socket.types";
+import { io } from "../../server";
 
 export default function StreamSystem(socket: Socket) {
     socket.on("start-stream", (targetRoom: string, streamer: UserProps) => {
+        RoomList.forEach(room => {
+            if (room.id === targetRoom) {
+                room.stream.id = streamer.id
+                room.stream.presenting = true
+            }
+        })
+        io.local.emit("room-list", RoomList)
         socket.broadcast.to(targetRoom).emit("streaming")
     })
     socket.on("stop-stream", (targetRoom: string) => {
+        RoomList.forEach(room => {
+            if (room.id === targetRoom) {
+                room.stream.id = ""
+                room.stream.presenting = false
+            }
+        })
+        io.local.emit("room-list", RoomList)
         socket.broadcast.to(targetRoom).emit("avail-req")
     })
     socket.on("req-stream", (targetRoom: string, client: UserProps) => {
