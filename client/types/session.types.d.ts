@@ -1,12 +1,17 @@
+import { MediaConnection } from "peerjs"
 import { Dispatch, SetStateAction } from "react"
 
 interface SessionProps {
     host: boolean
-    streamAcces: boolean
+    streamAccess: boolean
     mutestream: boolean
     presenting: boolean
     interactive: string
     muted: string[]
+    calls: MediaConnection[]
+    stream: MediaStream | null
+    participantList: UserProps[]
+    fullscreen: boolean
     /* -------------------------- */
     sethost: Dispatch<SetStateAction<boolean>>
     setstreamAcces: Dispatch<SetStateAction<boolean>>
@@ -14,6 +19,10 @@ interface SessionProps {
     setpresenting: Dispatch<SetStateAction<boolean>>
     setinteractive: Dispatch<SetStateAction<string>>
     setmuted: Dispatch<SetStateAction<string[]>>
+    setcalls: Dispatch<SetStateAction<MediaConnection[]>>
+    setstream: Dispatch<SetStateAction<MediaStream | null>>
+    setParticipantList: Dispatch<SetStateAction<UserProps[]>>
+    setfullscreen: Dispatch<SetStateAction<boolean>>
 }
 
 interface UserProps {

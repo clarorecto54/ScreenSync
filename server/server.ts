@@ -2,7 +2,7 @@ import { PeerServer } from "peer"
 import { createServer } from "https"
 import { Server } from "socket.io"
 import { readFileSync } from "fs"
-import { TimeLog } from "./system/log"
+import { ServerLog, TimeLog } from "./system/log"
 import Turn from "node-turn"
 import GETIP from "./system/ipv4"
 import SocketListener from "./system/socket/socket"
@@ -30,14 +30,26 @@ export const peer = PeerServer({
 export const turn1 = new Turn({
     listeningPort: 3003,
     authMech: "none",
+    // debug: (level, message) => {
+    //     level = "ALL"
+    //     ServerLog("server", `[ TURN 1 ] ${message}`, true)
+    // }
 })
 export const turn2 = new Turn({
     listeningPort: 3004,
     authMech: "none",
+    // debug: (level, message) => {
+    //     level = "ALL"
+    //     ServerLog("server", `[ TURN 2 ] ${message}`, true)
+    // }
 })
 export const turn3 = new Turn({
     listeningPort: 3005,
     authMech: "none",
+    // debug: (level, message) => {
+    //     level = "ALL"
+    //     ServerLog("server", `[ TURN 3 ] ${message}`, true)
+    // }
 })
 /* ------ API HANDLING ------ */
 turn1.start(); turn2.start(); turn3.start()

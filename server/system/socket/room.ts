@@ -45,6 +45,12 @@ export default function RoomSystem(socket: Socket) {
                     io.local.emit("room-list", RoomList) //? Sends the updated roomlist
                     socket.join(roomID) //? Join the room in socket
                 }
+                if (room.stream.presenting) { //? If a late comer join the meeting while someone is presenting
+                    setTimeout(() => {
+                        io.to(room.stream.hostID ?? room.stream.id).emit("get-stream", socket.id)
+                        io.to(socket.id).emit("streaming")
+                    }, 1000)
+                }
             }
         })
         RoomCleanup()
