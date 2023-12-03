@@ -138,7 +138,7 @@ function Dock() {
     return <div //* CONTAINER
         className="flex gap-[16px] justify-center items-center">
         <Reaction />
-        {presenting && <Button //* FULLSCREEN
+        {(presenting && (!host && !streamAccess)) && <Button //* FULLSCREEN
             circle useIcon iconOverlay iconSrc={require("@/public/images/Fullscreen.svg")}
             onClick={() => setfullscreen(true)}
             className={classMerge(
