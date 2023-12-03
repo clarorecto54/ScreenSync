@@ -45,7 +45,7 @@ export default function SessionList() {
 
 function SessionInfo({ id, host, participants, meetingKey }: { id: string, host: UserProps, participants: UserProps[], meetingKey: string }) {
     /* ----- STATES & HOOKS ----- */
-    const { socket, myInfo, setmeetingCode } = useGlobals()
+    const { socket, myInfo } = useGlobals()
     const [keyinput, setKeyinput] = useState<string>("")
     const [showInput, setShowInput] = useState<boolean>(false)
     const [wrongKey, setWrongKey] = useState<boolean>(false)

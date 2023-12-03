@@ -36,7 +36,7 @@ export default function Participants() {
 }
 function Popup({ participantList }: { participantList: UserProps[] }) {
     /* ----- STATES & HOOKS ----- */
-    const { myInfo } = useGlobals()
+    const { socket, myInfo, meetingCode } = useGlobals()
     const {
         host,
         muted, setmuted,
@@ -101,6 +101,7 @@ function Popup({ participantList }: { participantList: UserProps[] }) {
                         </Button>
                         {host && <Button //* ALERT ALL
                             circle useIcon iconSrc={require("@/public/images/Alert.svg")}
+                            onClick={() => socket?.emit("alert-all", meetingCode)}
                             className={classMerge(
                                 "bg-[#F9AE25] text-[14px] text-black drop-shadow-md", //? Base
                                 "hover:scale-90", //? Hover
@@ -110,6 +111,7 @@ function Popup({ participantList }: { participantList: UserProps[] }) {
                         </Button>}
                         {host && <Button //* KICK ALL
                             circle useIcon iconSrc={require("@/public/images/Kick.svg")}
+                            onClick={() => socket?.emit("kick-all", meetingCode)}
                             className={classMerge(
                                 "bg-[#E4280E] brightness-105 text-[14px] text-black drop-shadow-md", //? Base
                                 "hover:scale-90", //? Hover
@@ -160,6 +162,7 @@ function Popup({ participantList }: { participantList: UserProps[] }) {
                                 </Button>
                                 {host && <Button //* Alert
                                     circle useIcon iconSrc={require("@/public/images/Alert.svg")}
+                                    onClick={() => socket?.emit("alert", id)}
                                     className={classMerge(
                                         "bg-[#F9AE25] text-[14px] text-black drop-shadow-md", //? Base
                                         "hover:scale-90", //? Hover
@@ -167,8 +170,9 @@ function Popup({ participantList }: { participantList: UserProps[] }) {
                                     )}>
                                     Alert
                                 </Button>}
-                                {host && <Button
+                                {host && <Button //* KICK
                                     circle useIcon iconSrc={require("@/public/images/Kick.svg")}
+                                    onClick={() => socket?.emit("kick", id)}
                                     className={classMerge(
                                         "bg-[#E4280E] brightness-105 text-[14px] text-black drop-shadow-md", //? Base
                                         "hover:scale-90", //? Hover

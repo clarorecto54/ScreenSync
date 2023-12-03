@@ -1,11 +1,15 @@
 "use client"
+import { useGlobals } from "@/components/hooks/useGlobals";
 import { SessionContextProvider } from "@/components/hooks/useSession";
 import AppDock from "@/components/session/appdock";
 import MainDisplay from "@/components/session/display";
 import Header from "@/components/session/headers";
+import SystemPopup from "@/components/system.popup";
 import classMerge from "@/components/utils/classMerge";
 
 export default function Session() {
+    /* ----- STATES & HOOKS ----- */
+    const { systemPopup } = useGlobals()
     /* -------- RENDERING ------- */
     return <SessionContextProvider>
         <div //* VIEWPORT
@@ -18,6 +22,19 @@ export default function Session() {
             <Header />
             <MainDisplay />
             <AppDock />
+        </div>
+        <div //* SYSTEM POPUP
+            className={classMerge(
+                "h-full w-full -z-50 flex justify-center items-center opacity-0 pointer-events-none", //? Base
+                "absolute backdrop-blur-md backdrop-brightness-50", //? Background
+                "transition-all duration-1000", //? Animation
+                systemPopup !== null && "opacity-100 z-50 pointer-events-auto", //? Conditional
+            )}>
+            {systemPopup?.type === "ALERT" && <audio
+                autoPlay loop
+                src="/sounds/alarm.wav"
+                typeof="audio/wav" />}
+            {systemPopup !== null && <SystemPopup />}
         </div>
     </SessionContextProvider>
 }

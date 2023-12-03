@@ -65,6 +65,10 @@ input {
   filter: invert(54%) sepia(34%) saturate(6726%) hue-rotate(163deg) brightness(96%) contrast(101%);
 }
 
+.yellowOverlay {
+  filter: invert(72%) sepia(36%) saturate(2705%) hue-rotate(348deg) brightness(99%) contrast(91%)
+}
+
 .whiteOverlay {
   filter: invert(99%) sepia(0%) saturate(2703%) hue-rotate(317deg) brightness(107%) contrast(100%)
 }

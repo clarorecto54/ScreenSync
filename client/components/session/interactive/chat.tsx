@@ -7,12 +7,15 @@ import { MessageProps } from "@/types/session.types";
 import { useEffect, useRef, useState } from "react";
 export default function Chat() {
     /* ----- STATES & HOOKS ----- */
-    const { socket } = useGlobals()
+    const { socket, meetingCode } = useGlobals()
     const { interactive, setinteractive } = useSession()
     const [chatlog, setchatlog] = useState<MessageProps[]>([])
     const [newchat, setnewchat] = useState<boolean>(false)
     /* ------ EVENT HANDLER ----- */
     useEffect(() => {
+        //* EMIT (REQ)
+        socket?.emit("get-chat", meetingCode)
+        //* ON (RES)
         socket?.on("updated-chat", (data: MessageProps[]) => setchatlog(data))
         socket?.on("new-chat", () => { !interactive.includes("chat") && setnewchat(true) })
         return () => {

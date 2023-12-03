@@ -57,6 +57,11 @@ export function GlobalContextProvider({ children }: { children: ReactNode }) {
             //* EMIT (REQ)
             socket.emit("my-ipv4")
             //* ON (RES)
+            socket.on("alert", () => setsystemPopup({
+                type: "ALERT",
+                message: "Press close if you're there.",
+                icon: require("@/public/images/Alert.svg")
+            }))
             socket.on("user-existed", () => setsystemPopup({
                 type: "ERROR", icon: require("@/public/images/Participants.svg"),
                 message: "Username is already existing on the room. Please change your username."
@@ -89,6 +94,11 @@ export function GlobalContextProvider({ children }: { children: ReactNode }) {
         }
         return () => {
             if (socket) {
+                socket.off("alert", () => setsystemPopup({
+                    type: "ALERT",
+                    message: "Press close if you're there.",
+                    icon: require("@/public/images/Alert.svg")
+                }))
                 socket.off("user-existed", () => setsystemPopup({
                     type: "ERROR", icon: require("@/public/images/Participants.svg"),
                     message: "Username is already existing on the room. Please change your username."

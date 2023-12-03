@@ -20,4 +20,10 @@ export default function ChatSystem(socket: Socket) {
             }
         })
     })
+    socket.on("get-chat", (targetRoom: string) =>
+        RoomList.forEach(room => {
+            if (room.id === targetRoom) { //? Find the target room
+                io.to(socket.id).emit("updated-chat", room.chatlog)
+            }
+        }))
 }

@@ -44,10 +44,16 @@ export function SessionContextProvider({ children }: { children: ReactNode }) {
         //* EMIT (REQ)
         socket?.emit("check-host", meetingCode)
         //* ON (RES)
-        socket?.on("dissolve-meeting", () => setmeetingCode(""))
+        socket?.on("dissolve-meeting", () => {
+            socket.emit("leave-room", meetingCode)
+            setmeetingCode("")
+        })
         socket?.on("check-host", () => sethost(true))
         return () => {
-            socket?.off("dissolve-meeting", () => setmeetingCode(""))
+            socket?.off("dissolve-meeting", () => {
+                socket.emit("leave-room", meetingCode)
+                setmeetingCode("")
+            })
             socket?.off("check-host", () => sethost(true))
         }
     }, [])

@@ -21,6 +21,7 @@ export default function SystemPopup() {
                 className={classMerge(
                     "h-[3em] w-[3em] object-cover", //? Base
                     systemPopup?.type === "ERROR" ? "redOverlay" : "blueOverlay", //? Overlay
+                    systemPopup?.type === "ALERT" && "yellowOverlay"
                 )}
                 src={systemPopup?.icon ? systemPopup.icon : require("@/public/images/Missing.svg")}
                 alt="" />

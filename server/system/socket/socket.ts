@@ -3,6 +3,7 @@ import { SocketCleanup } from "../cleanups"
 import { ServerLog, TimeLog } from "../log"
 import { PeerCount } from "../peer/peer"
 import ChatSystem from "./chat"
+import InteractiveSystem from "./interactive"
 import RoomSystem from "./room"
 
 export default function SocketListener() {
@@ -32,5 +33,6 @@ export default function SocketListener() {
         /* -------------------------- */
         RoomSystem(socket)
         ChatSystem(socket)
+        InteractiveSystem(socket)
     })
 }
