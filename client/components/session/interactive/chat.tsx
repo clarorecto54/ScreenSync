@@ -127,7 +127,7 @@ function Log({ chatlog }: { chatlog: MessageProps[] }) {
                 "flex gap-[0.5em] justify-center items-center ", //? Base
             )}>
             <Textbox //* TEXTBOX
-                circle value={message} maxLength={255}
+                circle value={message} maxLength={255} type=""
                 id="message" placeholder="Type your message here"
                 onChange={(thisElement) => setMessage(thisElement.target.value)}
                 containerClass="focus-within:border-0 w-full"
