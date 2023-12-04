@@ -1,5 +1,5 @@
 import { io } from "../../server"
-import { SocketCleanup } from "../cleanups"
+import { RoomCleanup, SocketCleanup } from "../cleanups"
 import { ServerLog, TimeLog } from "../log"
 import { PeerCount } from "../peer/peer"
 import ChatSystem from "./chat"
@@ -11,12 +11,12 @@ export default function SocketListener() {
     io.on("connection", socket => {
         //* CLIENT CONNECTION
         io.local.emit("leave-room")
-        SocketCleanup()
+        RoomCleanup()
         ServerLog("server", `[ CLIENTS ] Socket: ${io.sockets.sockets.size} | Peer: ${PeerCount}`, true)
         ServerLog("socket", `[ CONNECTED ] ${socket.id}`, true)
         //* CLIENT DISCONNECTION
         socket.on("disconnect", () => {
-            SocketCleanup()
+            RoomCleanup()
             ServerLog("server", `[ CLIENTS ] Socket: ${io.sockets.sockets.size} | Peer: ${PeerCount}`, true)
             ServerLog("socket", `[ DISCONNECTED ] ${socket.id}`, true)
         })

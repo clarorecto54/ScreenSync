@@ -1,5 +1,4 @@
 import { Socket } from "socket.io";
-import { io } from "../../server";
 
 export default function InteractiveSystem(socket: Socket) {
     socket.on("alert", (targetID: string) => socket.to(targetID).emit("alert"))

@@ -3,6 +3,8 @@ import { RoomProps, UserProps } from "./socket.types";
 import { ServerLog, TimeLog } from "../log";
 import { io } from "../../server";
 import { RoomCleanup, RoomList, SocketCleanup } from "../cleanups";
+import { existsSync, mkdirSync, writeFileSync } from "fs";
+import { readFileSync } from "fs-extra";
 
 export default function RoomSystem(socket: Socket) {
     RoomCleanup()
@@ -27,6 +29,10 @@ export default function RoomSystem(socket: Socket) {
         RoomCleanup()
         SocketCleanup()
         ServerLog("server", `[ ROOM ][ ${room.id} ] new room has created.`, true)
+        //* LOGS
+        if (!existsSync(`../log/${room.id}`)) { mkdirSync(`../log/${room.id}`) }
+        if (!existsSync(`../log/${room.id}/attendance.txt`)) { writeFileSync(`../log/${room.id}/attendance.txt`, `[ ${TimeLog(true)} ][ ${socket.handshake.address} ][ ${socket.id} ] ${room.host.name}\n`, "utf-8") }
+        if (!existsSync(`../log/${room.id}/chats.txt`)) { writeFileSync(`../log/${room.id}/chats.txt`, "", "utf-8") }
     })
     socket.on("join-room", (roomID: string, userInfo: UserProps) => {
         RoomList.forEach(room => { //? VALIDATION (Make sure the username is not existed in the room)
@@ -55,6 +61,11 @@ export default function RoomSystem(socket: Socket) {
         })
         RoomCleanup()
         SocketCleanup()
+        //* LOGS
+        try {
+            const prevData: string = readFileSync(`../log/${roomID}/attendance.txt`, "utf-8")
+            writeFileSync(`../log/${roomID}/attendance.txt`, prevData.concat(`[ ${TimeLog(true)} ][ ${socket.handshake.address} ][ ${socket.id} ] ${userInfo.name}\n`), "utf-8")
+        } catch { }
     })
     socket.on("leave-room", (targetRoom: string) => {
         RoomList.forEach(room => {

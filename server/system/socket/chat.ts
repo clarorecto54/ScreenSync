@@ -3,6 +3,8 @@ import { UserProps } from "./socket.types";
 import { RoomList } from "../cleanups";
 import { TimeLog } from "../log";
 import { io } from "../../server";
+import { writeFileSync } from "fs";
+import { readFileSync } from "fs-extra";
 
 export default function ChatSystem(socket: Socket) {
     socket.on("send-message", (targetRoom: string, { id, name }: UserProps, message: string) => {
@@ -19,6 +21,11 @@ export default function ChatSystem(socket: Socket) {
                 socket.broadcast.to(targetRoom).emit("new-chat")
             }
         })
+        //* LOGS
+        try {
+            const prevData: string = readFileSync(`../log/${targetRoom}/chats.txt`, "utf-8")
+            writeFileSync(`../log/${targetRoom}/chats.txt`, prevData.concat(`[ ${TimeLog(true)} ][ ${socket.handshake.address} ][ ${socket.id} ][ ${name} ] ${message}\n`), "utf-8")
+        } catch { }
     })
     socket.on("get-chat", (targetRoom: string) =>
         RoomList.forEach(room => {

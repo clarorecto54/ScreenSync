@@ -1,7 +1,7 @@
 import { PeerServer } from "peer"
 import { createServer } from "https"
 import { Server } from "socket.io"
-import { readFileSync } from "fs"
+import { readFileSync, existsSync, mkdirSync } from "fs"
 import { TimeLog } from "./system/log"
 import Turn from "node-turn"
 import GETIP from "./system/ipv4"
@@ -61,6 +61,7 @@ process.on("SIGHUP", GracefulShutdown) //? Terminal hang up
 httpsServer
     .once("error", GracefulShutdown)
     .listen(3001, () => {
+        (!existsSync("../log/") && mkdirSync("../log/"))
         console.clear() //? Clear the log
         console.log(`[ ${TimeLog(true)} ][ RUNNING ][ SOCKET ] https://${GETIP()}:3001`)
         console.log(`[ ${TimeLog(true)} ][ RUNNING ][ PEER ] https://${GETIP()}:3002`)
