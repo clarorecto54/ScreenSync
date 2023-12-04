@@ -37,7 +37,7 @@ function StreamDisplay() {
     /* ----- STATES & HOOKS ----- */
     const streamRef = useRef<HTMLVideoElement>(null)
     const {
-        host, streamAccess,
+        calls,
         presenting, stream, mutestream,
         fullscreen, setfullscreen,
     } = useSession()
@@ -65,8 +65,8 @@ function StreamDisplay() {
             "transition-[opacity] duration-1000", //? Animation
         )}>
         {!stream && <div className="h-full w-full font-[600] font-[Montserrat] flex justify-center items-center">No Stream</div>}
-        {(stream && (host || streamAccess)) && <div className="h-full w-full font-[600] font-[Montserrat] flex justify-center items-center">Screen sharing is on</div>}
-        {(stream && (!host && !streamAccess)) && <video
+        {(stream && calls.length !== 0) && <div className="h-full w-full font-[600] font-[Montserrat] flex justify-center items-center">Screen sharing is on</div>}
+        {(stream && calls.length === 0) && <video
             autoPlay
             ref={streamRef}
             muted={mutestream}

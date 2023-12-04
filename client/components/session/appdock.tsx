@@ -167,7 +167,7 @@ function Dock() {
                                     //* QUALITY MODIFICATION
                                     await track.applyConstraints({
                                         displaySurface: { exact: "window" },
-                                        frameRate: { exact: 60 },
+                                        frameRate: { min: 60, max: 144, ideal: 144 },
                                         channelCount: { exact: 1 },
                                         echoCancellation: { exact: false },
                                         noiseSuppression: { exact: false },
