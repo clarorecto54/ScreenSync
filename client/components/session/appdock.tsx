@@ -8,6 +8,7 @@ import Chat from "./interactive/chat"
 import Participants from "./interactive/participants"
 import { UserProps } from "@/types/session.types"
 import { transformSDP } from "../utils/sdp.transform"
+import { myCodecs } from "../utils/codecs"
 
 export default function AppDock() {
     /* ----- STATES & HOOKS ----- */
@@ -195,6 +196,8 @@ function Dock() {
                                 makeCall.peerConnection.getConfiguration().iceCandidatePoolSize = 32
                                 //* SENDER PEER MODIFICATIONS
                                 makeCall.peerConnection.getSenders().forEach(sender => {
+                                    //* CODEC
+                                    sender.getParameters().codecs = myCodecs
                                     //* DEGREDATION PREFERENCE
                                     sender.getParameters().degradationPreference = "maintain-framerate"
                                     //* ENCODINGS
