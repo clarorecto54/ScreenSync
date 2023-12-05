@@ -190,6 +190,22 @@ function Dock() {
                         participantList.forEach(client => {
                             if (client.id !== myInfo.id) {
                                 const makeCall = peer.call(client.id, mainStream, { sdpTransform: transformSDP })
+                                //* PEER CONFIGURATIONS
+                                makeCall.peerConnection.getConfiguration().bundlePolicy = "max-compat"
+                                makeCall.peerConnection.getConfiguration().iceCandidatePoolSize = 32
+                                //* SENDER PEER MODIFICATIONS
+                                makeCall.peerConnection.getSenders().forEach(sender => {
+                                    //* DEGREDATION PREFERENCE
+                                    sender.getParameters().degradationPreference = "maintain-framerate"
+                                    //* ENCODINGS
+                                    sender.getParameters().encodings.forEach(encoding => {
+                                        encoding.priority = "high"
+                                        encoding.networkPriority = "high"
+                                        encoding.maxBitrate = 30000
+                                        encoding.maxFramerate = 60
+                                        encoding.scaleResolutionDownBy = 1
+                                    })
+                                })
                                 setcalls(prev => [...prev, makeCall])
                             }
                         })
