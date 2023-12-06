@@ -67,6 +67,11 @@ function Dock() {
                 setNoRequest(false)
                 setstreamAcces(false)
             }
+            if (calls.length !== 0) {
+                calls.forEach(call => call.close())
+                setcalls([])
+            }
+            if (stream) { stream.getTracks().forEach(track => track.stop()) }
             setpresenting(false)
         })
         socket?.on("grant-access", (permittedID: string) => {
@@ -107,6 +112,11 @@ function Dock() {
                     setNoRequest(false)
                     setstreamAcces(false)
                 }
+                if (calls.length !== 0) {
+                    calls.forEach(call => call.close())
+                    setcalls([])
+                }
+                if (stream) { stream.getTracks().forEach(track => track.stop()) }
                 setpresenting(false)
             })
             socket?.off("grant-access", (permittedID: string) => {
@@ -139,14 +149,14 @@ function Dock() {
     return <div //* CONTAINER
         className="flex gap-[16px] justify-center items-center">
         <Reaction />
-        {(presenting && (!host && !streamAccess)) && <Button //* FULLSCREEN
+        {(presenting && ((!host && !streamAccess) || (host && !streamAccess && calls.length === 0))) && <Button //* FULLSCREEN
             circle useIcon iconOverlay iconSrc={require("@/public/images/Fullscreen.svg")}
             onClick={() => setfullscreen(true)}
             className={classMerge(
                 "bg-[#525252]", //? Background
                 "hover:bg-[#646464]", //? Hover
             )} />}
-        {(presenting && (!host && !streamAccess)) && <Button //* MUTE
+        {(presenting && stream?.getAudioTracks().length !== 0 && ((!host && !streamAccess) || (host && !streamAccess && calls.length === 0))) && <Button //* MUTE
             circle useIcon iconSrc={mutestream ? require("@/public/images/Audio (1).svg") : require("@/public/images/Audio (2).svg")}
             iconOverlay customOverlay={mutestream ? "redOverlay" : undefined}
             onClick={() => setmutestream(!mutestream)}
@@ -225,11 +235,11 @@ function Dock() {
                 "bg-[#525252]", //? Background
                 "hover:bg-[#646464]", //? Hover
             )} />}
-        {(presenting && (host || streamAccess)) && < Button //* STOP SHARE SCREEN
+        {(presenting && host && calls.length === 0) && < Button //* STOP SHARE SCREEN
             circle useIcon iconSrc={require("@/public/images/Share Screen (1).svg")}
             iconOverlay customOverlay={(presenting || (!streamAccess && !host)) ? "redOverlay" : undefined}
             onClick={() => {
-                if (host || streamAccess) {
+                if (host) {
                     calls.forEach(call => call.close())
                     setcalls([])
                 }
