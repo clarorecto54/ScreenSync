@@ -18,7 +18,7 @@ export function transformSDP(sdp: string) {
     ]
     //* CODEC LIST
     const videoCodecs: { codec: string, config: string }[] = [
-        { codec: "VP8", config: `max-fr=${fps}` },
+        { codec: "VP8", config: "" },
         {
             codec: "H264", config: [
                 "profile-level-id=640034",
@@ -82,19 +82,19 @@ export function transformSDP(sdp: string) {
             case "video":
                 //* CLEAR DEFAULTS
                 modifiedSDP.media[mediaIndex].payloads = "" //? Clear out payloads
-                modifiedSDP.media[mediaIndex].rtp = [] //? Clear out default codecs
+                modifiedSDP.media[mediaIndex].rtp = [] //? Cle96ar out default codecs
                 modifiedSDP.media[mediaIndex].fmtp = [] //? Clear out deafult configs
                 modifiedSDP.media[mediaIndex].rtcpFb = [] //? Clear out acknowledgement
-                //* RED [PACKET REDUNDANCY] (98)
-                addRTPRTX(98, "red")
-                //* PACKET ERROR CORRECTION (100)
-                addRTPOnly(100, "ulpfec")
                 //* INSTALLING NEW CODECS
-                var startingPayload = 101
+                var startingPayload = 98
                 videoCodecs.forEach(({ codec, config }) => {
                     addCODEC(startingPayload, codec, config)
                     config ? startingPayload += 2 : startingPayload += 1
                 })
+                //* RED [PACKET REDUNDANCY] (125)
+                addRTPRTX(125, "red")
+                //* PACKET ERROR CORRECTION (127)
+                addRTPOnly(127, "ulpfec")
                 //* APPLYING NEW CODECS
                 modifiedSDP.media[mediaIndex].payloads = payloads.join(" ")
                 modifiedSDP.media[mediaIndex].rtp = rtp
@@ -114,7 +114,7 @@ export function transformSDP(sdp: string) {
                     { payload: 97, codec: "opus", rate: 48000, encoding: 2 }
                 ]
                 modifiedSDP.media[mediaIndex].fmtp = [
-                    { payload: 96, config: "97/97" },
+                    { payload: 96, config: "97" },
                     {
                         payload: 97, config: [
                             "stereo=1",
@@ -139,7 +139,8 @@ export function transformSDP(sdp: string) {
         }
     })
     // return sdp //? Debug for normal SDP
-    console.log(write(modifiedSDP).replaceAll("262144", "2000000000"))
+    // console.clear()
+    // console.log(write(modifiedSDP).replaceAll("262144", "2000000000"))
     return write(modifiedSDP).replaceAll("262144", "2000000000") //? Send the modified SDP with the new max packet size
 }
 function generateRTCPFB(payloads: number[]) {

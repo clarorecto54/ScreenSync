@@ -169,11 +169,11 @@ function Dock() {
                                     await track.applyConstraints({
                                         displaySurface: { exact: "window" },
                                         frameRate: { min: 60, max: 144, ideal: 144 },
-                                        channelCount: { exact: 1 },
-                                        echoCancellation: { exact: false },
-                                        noiseSuppression: { exact: false },
-                                        sampleRate: { min: 44100, max: 88200, ideal: 88200 },
-                                        sampleSize: { min: 16, max: 24, ideal: 24 }
+                                        // channelCount: { exact: 1 },
+                                        // echoCancellation: { exact: false },
+                                        // noiseSuppression: { exact: false },
+                                        // sampleRate: { min: 44100, max: 88200, ideal: 88200 },
+                                        // sampleSize: { min: 16, max: 24, ideal: 24 }
                                     }).then(() => { return }).catch(err => err)
                                     // .catch(err => console.log("Kind ", track.kind, ": ", err))
                                     //* ADD EVENT LISTENER
