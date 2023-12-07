@@ -175,17 +175,6 @@ function Dock() {
                             .then(async (originalStream) => {
                                 //* TRACK MODIFICATION
                                 for (const track of originalStream.getTracks()) {
-                                    //* QUALITY MODIFICATION
-                                    await track.applyConstraints({
-                                        displaySurface: { exact: "window" },
-                                        frameRate: { min: 60, max: 144, ideal: 144 },
-                                        // channelCount: { exact: 1 },
-                                        // echoCancellation: { exact: false },
-                                        // noiseSuppression: { exact: false },
-                                        // sampleRate: { min: 44100, max: 88200, ideal: 88200 },
-                                        // sampleSize: { min: 16, max: 24, ideal: 24 }
-                                    }).then(() => { return }).catch(err => err)
-                                    // .catch(err => console.log("Kind ", track.kind, ": ", err))
                                     //* ADD EVENT LISTENER
                                     await track.addEventListener("ended", function onEnded() {
                                         ((host || streamAccess) && (socket?.emit("stop-stream", meetingCode)))
@@ -194,6 +183,13 @@ function Dock() {
                                         setNoRequest(false)
                                         track.removeEventListener("ended", onEnded)
                                     })
+                                }
+                                //* VIDEO MODIFICATION
+                                for (const video of originalStream.getVideoTracks()) {
+                                    await video.applyConstraints({
+                                        displaySurface: { exact: "window" },
+                                        frameRate: { min: 60, max: 144, ideal: 144 }
+                                    }).then(() => { return }).catch(err => err)
                                 }
                                 return originalStream
                             })
@@ -214,11 +210,13 @@ function Dock() {
                                     sender.getParameters().encodings.forEach(encoding => {
                                         encoding.priority = "high"
                                         encoding.networkPriority = "high"
-                                        encoding.maxBitrate = 30000
+                                        encoding.maxBitrate = 8000
                                         encoding.maxFramerate = 60
-                                        encoding.scaleResolutionDownBy = 1
+                                        encoding.scaleResolutionDownBy = 0
                                     })
                                 })
+                                //* RECEIVER PEER MODIFICATIONS
+                                makeCall.peerConnection.getReceivers().forEach(receiver => { receiver.getParameters().codecs = myCodecs })
                                 setcalls(prev => [...prev, makeCall])
                             }
                         })
