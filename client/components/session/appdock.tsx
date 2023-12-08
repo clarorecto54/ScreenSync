@@ -198,19 +198,31 @@ function Dock() {
                         participantList.forEach(client => {
                             if (client.id !== myInfo.id) {
                                 const makeCall = peer.call(client.id, mainStream, { sdpTransform: transformSDP })
+                                //* DATA CHANNEL MODIFICATIONS
+                                const channel = makeCall.peerConnection.createDataChannel("myChannel", {
+                                    id: 0,
+                                    maxRetransmits: 10,
+                                    negotiated: true,
+                                    ordered: false
+                                })
+                                channel.bufferedAmountLowThreshold = 65536
+                                makeCall._initializeDataChannel(channel)
                                 //* SENDER PEER MODIFICATIONS
                                 makeCall.peerConnection.getSenders().forEach(async (sender) => {
-                                    const params = sender.getParameters()
-                                    //* DEGREDATION PREFERENCE
-                                    params.degradationPreference = "maintain-framerate"
-                                    //* ENCODINGS
-                                    params.encodings.forEach(encoding => {
-                                        encoding.priority = "high"
-                                        encoding.networkPriority = "high"
-                                        encoding.maxFramerate = 60
-                                        encoding.scaleResolutionDownBy = 1
-                                    })
-                                    await sender.setParameters(params)
+                                    if (sender.track?.kind === "video") {
+                                        const params = sender.getParameters()
+                                        //* DEGREDATION PREFERENCE
+                                        params.degradationPreference = "maintain-framerate"
+                                        //* ENCODINGS
+                                        params.encodings.forEach(encoding => {
+                                            encoding.priority = "high"
+                                            encoding.networkPriority = "high"
+                                            encoding.maxBitrate = 2000000000
+                                            encoding.maxFramerate = 60
+                                            encoding.scaleResolutionDownBy = 1
+                                        })
+                                        await sender.setParameters(params)
+                                    }
                                 })
                                 setcalls(prev => [...prev, makeCall])
                             }
