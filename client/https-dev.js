@@ -4,6 +4,7 @@ const os = require("os")
 const next = require('next')
 const fs = require("fs")
 const dev = process.env.NODE_ENV !== 'production'
+process.env.TUBOPACK = "1"
 const port = 3000
 let IP = ""
 try {

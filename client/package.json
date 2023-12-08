@@ -3,10 +3,10 @@
   "version": "7.13.23 ( Beta 1 )",
   "private": true,
   "scripts": {
-    "dev": "node https-dev.js",
+    "dev": "node https-dev.js --turbo",
     "dev2": "next dev --experimental-https",
     "build": "next build",
-    "start": "node https-start.js",
+    "start": "node https-start.js --turbo",
     "lint": "next lint"
   },
   "dependencies": {
