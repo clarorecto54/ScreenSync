@@ -1,6 +1,6 @@
-export const myCodecs: RTCRtpCodecParameters[] = [
+export const myCodecs: RTCRtpCodecCapability[] = [
     {
-        payloadType: 97, clockRate: 48000, mimeType: "audio/opus", sdpFmtpLine: [
+        clockRate: 48000, mimeType: "audio/opus", sdpFmtpLine: [
             "stereo=1",
             "sprop-stereo=1",
             "useinbandfec=1",
@@ -15,9 +15,9 @@ export const myCodecs: RTCRtpCodecParameters[] = [
             "sprop-maxcapturerate=192000"
         ].join(";")
     },
-    { payloadType: 98, clockRate: 90000, mimeType: "video/VP8", sdpFmtpLine: "" },
+    { clockRate: 90000, mimeType: "video/VP8", sdpFmtpLine: "" },
     {
-        payloadType: 99, clockRate: 90000, mimeType: "video/H264", sdpFmtpLine: [
+        clockRate: 90000, mimeType: "video/H264", sdpFmtpLine: [
             "profile-level-id=640034",
             "level-asymmetry-allowed=1",
             "packetization-mode=1",

@@ -2,7 +2,6 @@
 import { GlobalProps } from "@/types/globals.types";
 import { RoomProps, UserProps } from "@/types/session.types";
 import { SystemPopupProps } from "@/types/system.popup.types";
-import { RedirectType, redirect } from "next/navigation";
 import Peer from "peerjs";
 import { ReactNode, createContext, useContext, useEffect, useState } from "react";
 import { Socket, io } from "socket.io-client";
@@ -81,11 +80,12 @@ export function GlobalContextProvider({ children }: { children: ReactNode }) {
                         secure: true,
                         pingInterval: 1000,
                         config: {
-                            'iceServers': [
-                                { url: "stun:192.168.2.49:3003" },
-                                { url: "stun:192.168.2.49:3004" },
-                                { url: "stun:192.168.2.49:3005" }
-                            ]
+                            bundlePolicy: "max-bundle",
+                            iceCandidatePoolSize: 32,
+                            iceServers: [{ urls: ["stun:192.168.2.49:3003", "stun:192.168.2.49:3004", "stun:192.168.2.49:3005"] }],
+                            iceTransportPolicy: "all",
+                            rtcpMuxPolicy: "require",
+                            sdpSemantics: 'unified-plan'
                         }
                     }))
                 }
@@ -118,11 +118,12 @@ export function GlobalContextProvider({ children }: { children: ReactNode }) {
                             secure: true,
                             pingInterval: 1000,
                             config: {
-                                'iceServers': [
-                                    { url: "stun:192.168.2.49:3003" },
-                                    { url: "stun:192.168.2.49:3004" },
-                                    { url: "stun:192.168.2.49:3005" }
-                                ]
+                                bundlePolicy: "max-bundle",
+                                iceCandidatePoolSize: 32,
+                                iceServers: [{ urls: ["stun:192.168.2.49:3003", "stun:192.168.2.49:3004", "stun:192.168.2.49:3005"] }],
+                                iceTransportPolicy: "all",
+                                rtcpMuxPolicy: "require",
+                                sdpSemantics: 'unified-plan'
                             }
                         }))
                     }

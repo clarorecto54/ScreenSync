@@ -8,7 +8,6 @@ import Chat from "./interactive/chat"
 import Participants from "./interactive/participants"
 import { UserProps } from "@/types/session.types"
 import { transformSDP } from "../utils/sdp.transform"
-import { myCodecs } from "../utils/codecs"
 
 export default function AppDock() {
     /* ----- STATES & HOOKS ----- */
@@ -175,6 +174,8 @@ function Dock() {
                             .then(async (originalStream) => {
                                 //* TRACK MODIFICATION
                                 for (const track of originalStream.getTracks()) {
+                                    if (track.kind === "audio") { track.contentHint = "music" }
+                                    else { track.contentHint = "detail" }
                                     //* ADD EVENT LISTENER
                                     await track.addEventListener("ended", function onEnded() {
                                         ((host || streamAccess) && (socket?.emit("stop-stream", meetingCode)))
@@ -197,26 +198,20 @@ function Dock() {
                         participantList.forEach(client => {
                             if (client.id !== myInfo.id) {
                                 const makeCall = peer.call(client.id, mainStream, { sdpTransform: transformSDP })
-                                //* PEER CONFIGURATIONS
-                                makeCall.peerConnection.getConfiguration().bundlePolicy = "max-compat"
-                                makeCall.peerConnection.getConfiguration().iceCandidatePoolSize = 32
                                 //* SENDER PEER MODIFICATIONS
-                                makeCall.peerConnection.getSenders().forEach(sender => {
-                                    //* CODEC
-                                    sender.getParameters().codecs = myCodecs
+                                makeCall.peerConnection.getSenders().forEach(async (sender) => {
+                                    const params = sender.getParameters()
                                     //* DEGREDATION PREFERENCE
-                                    sender.getParameters().degradationPreference = "maintain-framerate"
+                                    params.degradationPreference = "maintain-framerate"
                                     //* ENCODINGS
-                                    sender.getParameters().encodings.forEach(encoding => {
+                                    params.encodings.forEach(encoding => {
                                         encoding.priority = "high"
                                         encoding.networkPriority = "high"
-                                        encoding.maxBitrate = 8000
                                         encoding.maxFramerate = 60
-                                        encoding.scaleResolutionDownBy = 0
+                                        encoding.scaleResolutionDownBy = 1
                                     })
+                                    await sender.setParameters(params)
                                 })
-                                //* RECEIVER PEER MODIFICATIONS
-                                makeCall.peerConnection.getReceivers().forEach(receiver => { receiver.getParameters().codecs = myCodecs })
                                 setcalls(prev => [...prev, makeCall])
                             }
                         })

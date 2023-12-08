@@ -4,7 +4,7 @@ import { useGlobals } from "@/components/hooks/useGlobals";
 import { useSession } from "@/components/hooks/useSession";
 import classMerge from "@/components/utils/classMerge";
 import { MessageProps } from "@/types/session.types";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 export default function Chat() {
     /* ----- STATES & HOOKS ----- */
     const { socket, meetingCode } = useGlobals()

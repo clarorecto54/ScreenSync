@@ -68,14 +68,6 @@ export function SessionContextProvider({ children }: { children: ReactNode }) {
         socket?.on("check-host", () => sethost(true))
         //* PEER ON (RES)
         peer?.on("call", call => {
-            const peercon = call.peerConnection
-            if (peercon) {
-                const config = peercon.getConfiguration()
-                if (config) {
-                    config.bundlePolicy = "max-compat"
-                    config.iceCandidatePoolSize = 32
-                }
-            }
             call.answer(undefined, { sdpTransform: transformSDP })
             call.on("stream", (mainStream) => setstream(mainStream))
             call.on("close", () => {
@@ -98,14 +90,6 @@ export function SessionContextProvider({ children }: { children: ReactNode }) {
             socket?.off("check-host", () => sethost(true))
             //* PEER ON (RES)
             peer?.off("call", call => {
-                const peercon = call.peerConnection
-                if (peercon) {
-                    const config = peercon.getConfiguration()
-                    if (config) {
-                        config.bundlePolicy = "max-compat"
-                        config.iceCandidatePoolSize = 32
-                    }
-                }
                 call.answer(undefined, { sdpTransform: transformSDP })
                 call.on("stream", (mainStream) => setstream(mainStream))
                 call.on("close", () => {

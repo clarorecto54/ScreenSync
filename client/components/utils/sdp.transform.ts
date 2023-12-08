@@ -24,16 +24,16 @@ export function transformSDP(sdp: string) {
                 "profile-level-id=640034",
                 "level-asymmetry-allowed=1",
                 "packetization-mode=1",
-                "max-br=8000000",
-                "max-mbps=8000",
+                "max-br=30000000",
+                "max-mbps=30000",
                 `max-fr=${fps}`,
             ].join(";")
         },
     ]
     //* TEMPLATES
     const GoogleFlags = [
-        "x-google-start-bitrate=6000",
-        "x-google-max-bitrate=8000",
+        "x-google-start-bitrate=20000",
+        "x-google-max-bitrate=30000",
         "x-google-max-quantization=30",
         "x-google-min-quantization=20",
         "x-google-buffer-initial-delay=5000",
