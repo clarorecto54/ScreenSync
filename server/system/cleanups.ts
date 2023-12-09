@@ -18,10 +18,10 @@ export function SocketCleanup() {
     const activeSockets: string[] = []
     io.sockets.sockets.forEach(socket => activeSockets.push(socket.id))
     RoomList.forEach(room => {
-        room.participants = room.participants.filter(client => {
-            return activeSockets.includes(client.id)
-        })
+        room.participants = room.participants.filter(client => activeSockets.includes(client.id))
+        room.inactive = room.inactive.filter(client => activeSockets.includes(client.id))
         io.to(room.id).emit("participant-list", room.participants)
+        io.to(room.id).emit("inactive-list", room.inactive)
     })
 }
 

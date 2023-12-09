@@ -19,7 +19,7 @@ export default function Inactives() {
             className={classMerge(
                 "bg-[#525252]", //? Background
                 "hover:bg-[#646464]", //? Hover
-            )} >{inactiveList.length}</Button>
+            )} >{inactiveList.length > 0 && inactiveList.length}</Button>
     </div>
 }
 function Popup({ inactiveList }: { inactiveList: UserProps[] }) {
