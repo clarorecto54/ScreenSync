@@ -175,7 +175,7 @@ function Dock() {
                                 //* TRACK MODIFICATION
                                 for (const track of originalStream.getTracks()) {
                                     if (track.kind === "audio") { track.contentHint = "music" }
-                                    else { track.contentHint = "detail" }
+                                    else { track.contentHint = "motion" }
                                     //* ADD EVENT LISTENER
                                     await track.addEventListener("ended", function onEnded() {
                                         ((host || streamAccess) && (socket?.emit("stop-stream", meetingCode)))
@@ -189,7 +189,7 @@ function Dock() {
                                 for (const video of originalStream.getVideoTracks()) {
                                     await video.applyConstraints({
                                         displaySurface: { exact: "window" },
-                                        frameRate: { min: 60, max: 144, ideal: 144 }
+                                        frameRate: { exact: 60 }
                                     }).then(() => { return }).catch(err => err)
                                 }
                                 return originalStream
