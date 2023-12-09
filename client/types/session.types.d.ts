@@ -11,6 +11,7 @@ interface SessionProps {
     calls: MediaConnection[]
     stream: MediaStream | null
     participantList: UserProps[]
+    inactiveList: UserProps[]
     fullscreen: boolean
     /* -------------------------- */
     sethost: Dispatch<SetStateAction<boolean>>
@@ -22,6 +23,7 @@ interface SessionProps {
     setcalls: Dispatch<SetStateAction<MediaConnection[]>>
     setstream: Dispatch<SetStateAction<MediaStream | null>>
     setParticipantList: Dispatch<SetStateAction<UserProps[]>>
+    setinactiveList: Dispatch<SetStateAction<UserProps[]>>
     setfullscreen: Dispatch<SetStateAction<boolean>>
 }
 
@@ -55,4 +57,5 @@ interface RoomProps {
     chatlog: MessageProps[]
     stream: StreamProps
     entries: AttendanceProps[]
+    inactive: UserProps[]
 }

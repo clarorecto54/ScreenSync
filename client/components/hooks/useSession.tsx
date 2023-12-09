@@ -16,6 +16,7 @@ const defaultValues: SessionProps = {
     calls: [],
     stream: null,
     participantList: [],
+    inactiveList: [],
     fullscreen: false,
     /* -------------------------- */
     sethost: () => { },
@@ -27,6 +28,7 @@ const defaultValues: SessionProps = {
     setcalls: () => { },
     setstream: () => { },
     setParticipantList: () => { },
+    setinactiveList: () => { },
     setfullscreen: () => { },
 }
 const context = createContext<SessionProps>(defaultValues)
@@ -36,7 +38,7 @@ export function useSession() { return useContext<SessionProps>(context) }
 export function SessionContextProvider({ children }: { children: ReactNode }) {
     /* ----- STATES & HOOKS ----- */
     const {
-        socket, peer,
+        socket, peer, myInfo,
         meetingCode, setmeetingCode,
     } = useGlobals()
     const [host, sethost] = useState<boolean>(false)
@@ -49,6 +51,7 @@ export function SessionContextProvider({ children }: { children: ReactNode }) {
     const [streamcall, setstreamcall] = useState<MediaConnection | null>(null)
     const [stream, setstream] = useState<MediaStream | null>(null)
     const [participantList, setParticipantList] = useState<UserProps[]>([])
+    const [inactiveList, setinactiveList] = useState<UserProps[]>([])
     const [fullscreen, setfullscreen] = useState<boolean>(false)
     /* ---- SESSION VALIDATOR --- */
     useEffect(() => {
@@ -56,10 +59,18 @@ export function SessionContextProvider({ children }: { children: ReactNode }) {
     }, [meetingCode])
     /* ----- SOCKET HANDLER ----- */
     useEffect(() => {
+        /* ---- HANDLER FUNCTIONS --- */
+        function VisibilityHandler() {
+            if (document.hidden && !host) { socket?.emit("inactive", meetingCode, myInfo) }
+            else { socket?.emit("active", meetingCode, myInfo) }
+        }
+        document.addEventListener("visibilitychange", VisibilityHandler)
         //* EMIT (REQ)
         socket?.emit("check-host", meetingCode)
         socket?.emit("participant-list", meetingCode)
+        socket?.emit("inactive-list", meetingCode)
         //* ON (RES)
+        socket?.on("inactive-list", (inactiveList: UserProps[]) => setinactiveList(inactiveList))
         socket?.on("participant-list", (participantList: UserProps[]) => setParticipantList(participantList))
         socket?.on("dissolve-meeting", () => {
             socket.emit("leave-room", meetingCode)
@@ -81,7 +92,9 @@ export function SessionContextProvider({ children }: { children: ReactNode }) {
             setstreamcall(call)
         })
         return () => {
+            document.removeEventListener("visibilitychange", VisibilityHandler)
             //* SOCKET CLEANUP
+            socket?.off("inactive-list", (inactiveList: UserProps[]) => setinactiveList(inactiveList))
             socket?.off("participant-list", (participantList: UserProps[]) => setParticipantList(participantList))
             socket?.off("dissolve-meeting", () => {
                 socket.emit("leave-room", meetingCode)
@@ -116,6 +129,7 @@ export function SessionContextProvider({ children }: { children: ReactNode }) {
         stream,
         participantList,
         fullscreen,
+        inactiveList,
         /* -------------------------- */
         sethost,
         setstreamAcces,
@@ -127,6 +141,7 @@ export function SessionContextProvider({ children }: { children: ReactNode }) {
         setstream,
         setParticipantList,
         setfullscreen,
+        setinactiveList,
     }
     return <context.Provider value={defaultValues}>{children}</context.Provider>
 }

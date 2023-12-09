@@ -28,4 +28,5 @@ export interface RoomProps {
     chatlog: MessageProps[]
     stream: StreamProps
     entries: AttendanceProps[]
+    inactive: UserProps[]
 }

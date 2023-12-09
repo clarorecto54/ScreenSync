@@ -81,7 +81,8 @@ function Input() {
                     participants: [myInfo],
                     stream: { hostID: myInfo.id, id: "", presenting: false },
                     entries: [],
-                    chatlog: []
+                    chatlog: [],
+                    inactive: []
                 }
                 socket?.emit("create-room", room)
                 setmeetingCode(room.id)

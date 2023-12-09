@@ -8,6 +8,30 @@ import { readFileSync } from "fs-extra";
 
 export default function RoomSystem(socket: Socket) {
     RoomCleanup()
+    socket.on("inactive", (targetRoom: string, targetUser: UserProps) => {
+        RoomList.forEach(room => {
+            if (room.id === targetRoom) { //? Find target room
+                room.inactive.push(targetUser) //? Add the inactive user to the list
+                io.to(room.host.id).emit("inactive-list", room.inactive) //? Send the updated inactive list to the host
+            }
+        })
+        try {
+            const prevData: string = readFileSync(`../log/${targetRoom}/inactive.txt`, "utf-8")
+            writeFileSync(`../log/${targetRoom}/inactive.txt`, prevData.concat(`[ ${TimeLog(true)} ][ ${socket.handshake.address} ][ ${socket.id} ][ INACTIVE ] ${targetUser.name}\n`), "utf-8")
+        } catch { }
+    })
+    socket.on("active", (targetRoom: string, targetUser: UserProps) => {
+        RoomList.forEach(room => {
+            if (room.id === targetRoom) { //? Find the target room
+                room.inactive = room.inactive.filter(user => user.id !== targetUser.id) //? Remove the user from the inactive list
+                io.to(room.host.id).emit("inactive-list", room.inactive) //? Send the updated inactive list to the host
+            }
+        })
+        try {
+            const prevData: string = readFileSync(`../log/${targetRoom}/inactive.txt`, "utf-8")
+            writeFileSync(`../log/${targetRoom}/inactive.txt`, prevData.concat(`[ ${TimeLog(true)} ][ ${socket.handshake.address} ][ ${socket.id} ][ ACTIVE ] ${targetUser.name}\n`), "utf-8")
+        } catch { }
+    })
     socket.on("check-host", (targetRoom: string) => {
         RoomList.forEach(room => {
             if (room.id === targetRoom) { //? Find the target room
@@ -33,6 +57,7 @@ export default function RoomSystem(socket: Socket) {
         if (!existsSync(`../log/${room.id}`)) { mkdirSync(`../log/${room.id}`) }
         if (!existsSync(`../log/${room.id}/attendance.txt`)) { writeFileSync(`../log/${room.id}/attendance.txt`, `[ ${TimeLog(true)} ][ ${socket.handshake.address} ][ ${socket.id} ] ${room.host.name}\n`, "utf-8") }
         if (!existsSync(`../log/${room.id}/chats.txt`)) { writeFileSync(`../log/${room.id}/chats.txt`, "", "utf-8") }
+        if (!existsSync(`../log/${room.id}/inactive.txt`)) { writeFileSync(`../log/${room.id}/inactive.txt`, "", "utf-8") }
     })
     socket.on("join-room", (roomID: string, userInfo: UserProps) => {
         RoomList.forEach(room => { //? VALIDATION (Make sure the username is not existed in the room)

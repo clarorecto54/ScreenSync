@@ -49,7 +49,6 @@ export function GlobalContextProvider({ children }: { children: ReactNode }) {
             }))
         }
     }, [IPv4])
-
     /* ----- SOCKET HANDLER ----- */
     useEffect(() => {
         if (socket) {

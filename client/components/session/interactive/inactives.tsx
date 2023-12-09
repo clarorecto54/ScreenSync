@@ -6,23 +6,23 @@ import classMerge from "@/components/utils/classMerge";
 import { UserProps } from "@/types/session.types";
 import { useState } from "react";
 
-export default function Participants() {
+export default function Inactives() {
     /* ----- STATES & HOOKS ----- */
-    const { participantList, interactive, setinteractive } = useSession()
+    const { inactiveList, interactive, setinteractive } = useSession()
     /* -------- RENDERING ------- */
     return <div
         className="relative flex justify-center items-center">
-        {interactive.includes("participants") && <Popup participantList={participantList} />}
+        {interactive.includes("inactives") && <Popup inactiveList={inactiveList} />}
         <Button //* PARTICIPANTS
-            circle useIcon iconOverlay iconSrc={require("@/public/images/Participants.svg")}
-            onClick={() => !interactive.includes("participants") ? setinteractive("participants") : setinteractive("")}
+            circle useIcon iconOverlay iconSrc={require("@/public/images/Inactive.svg")}
+            onClick={() => !interactive.includes("inactives") ? setinteractive("inactives") : setinteractive("")}
             className={classMerge(
                 "bg-[#525252]", //? Background
                 "hover:bg-[#646464]", //? Hover
-            )} >{participantList.length}</Button>
+            )} >{inactiveList.length}</Button>
     </div>
 }
-function Popup({ participantList }: { participantList: UserProps[] }) {
+function Popup({ inactiveList }: { inactiveList: UserProps[] }) {
     /* ----- STATES & HOOKS ----- */
     const { socket, myInfo, meetingCode } = useGlobals()
     const {
@@ -40,7 +40,7 @@ function Popup({ participantList }: { participantList: UserProps[] }) {
         )}>
         <label //* HEADER
             className="text-[1.25em] font-[Montserrat] font-[600]">
-            Audience
+            In-active Audience
         </label>
         <Textbox //* SEARCH BAR
             circle value={search} maxLength={255}
@@ -66,32 +66,15 @@ function Popup({ participantList }: { participantList: UserProps[] }) {
                     "text-[1em] font-[Montserrat] font-[400] ", //? Font
                 )}>
                 {myInfo.name} ( You )
-                {participantList.length > 1 && <div //* OPTIONS CONTAINER
+                {inactiveList.length > 0 && <div //* OPTIONS CONTAINER
                     className="flex justify-center items-center">
                     {selected.includes(myInfo.id) && <div //* OPTIONS
-                        style={{ translate: `0 -${host ? 7.5 : 4}em` }}
+                        style={{ translate: `0 -${host ? 6 : 4}em` }}
                         className="absolute flex flex-col gap-[0.5em]">
-                        <Button //* MUTE ALL
-                            circle useIcon iconOverlay iconSrc={require("@/public/images/Mute.svg")}
-                            onClick={() => {
-                                if (muted.length === 0) { //? Mute All
-                                    setmuted(participantList.filter(mute => mute.id !== myInfo.id).map(target => target.id))
-                                } else { //? Unmute All
-                                    setmuted([])
-                                }
-                                setSelected("")
-                            }}
-                            className={classMerge(
-                                "bg-[#323232] text-[14px] drop-shadow-md", //? Base
-                                "hover:scale-90", //? Hover
-                                "transition-all duration-500", //? Animation
-                            )}>
-                            {muted.length === 0 ? "Mute All" : "Unmute All"}
-                        </Button>
                         {host && <Button //* ALERT ALL
                             circle useIcon iconSrc={require("@/public/images/Alert.svg")}
                             onClick={() => {
-                                socket?.emit("alert-all", meetingCode)
+                                socket?.emit("alert-all-inactive", meetingCode)
                                 setSelected("")
                             }}
                             className={classMerge(
@@ -104,7 +87,7 @@ function Popup({ participantList }: { participantList: UserProps[] }) {
                         {host && <Button //* KICK ALL
                             circle useIcon iconSrc={require("@/public/images/Kick.svg")}
                             onClick={() => {
-                                socket?.emit("kick-all", meetingCode)
+                                socket?.emit("kick-all-inactive", meetingCode)
                                 setSelected("")
                             }}
                             className={classMerge(
@@ -125,7 +108,7 @@ function Popup({ participantList }: { participantList: UserProps[] }) {
                         )} />
                 </div>}
             </div>}
-            {participantList && participantList.map(({ id, name, IPv4 }, index) => {
+            {inactiveList && inactiveList.map(({ id, name, IPv4 }, index) => {
                 if (name.toUpperCase().includes(search.toUpperCase()) && myInfo.id !== id) {
                     return <div //* PARTICIPANTS TAB
                         key={index}
@@ -137,25 +120,8 @@ function Popup({ participantList }: { participantList: UserProps[] }) {
                         <div //* OPTIONS CONTAINER
                             className="flex justify-center items-center">
                             {selected.includes(id) && <div //* OPTIONS
-                                style={{ translate: `0 -${host ? 7.5 : 4}em` }}
+                                style={{ translate: `0 -${host ? 6 : 4}em` }}
                                 className="absolute flex flex-col gap-[0.5em]">
-                                <Button //* Mute
-                                    circle useIcon iconOverlay iconSrc={require("@/public/images/Mute.svg")}
-                                    onClick={() => {
-                                        if (!muted.includes(id)) { //? Mute
-                                            setmuted(prevValues => [...prevValues, id])
-                                        } else { //? Unmute
-                                            setmuted(muted.filter(muted => muted !== id))
-                                        }
-                                        setSelected("")
-                                    }}
-                                    className={classMerge(
-                                        "bg-[#323232] text-[14px] drop-shadow-md", //? Base
-                                        "hover:scale-90", //? Hover
-                                        "transition-all duration-500", //? Animation
-                                    )}>
-                                    {!muted.includes(id) ? "Mute" : "Unmute"}
-                                </Button>
                                 {host && <Button //* Alert
                                     circle useIcon iconSrc={require("@/public/images/Alert.svg")}
                                     onClick={() => {
@@ -172,7 +138,7 @@ function Popup({ participantList }: { participantList: UserProps[] }) {
                                 {host && <Button //* KICK
                                     circle useIcon iconSrc={require("@/public/images/Kick.svg")}
                                     onClick={() => {
-                                        socket?.emit("kick", id)
+                                        socket?.emit("kick-inactive", meetingCode, id)
                                         setSelected("")
                                     }}
                                     className={classMerge(

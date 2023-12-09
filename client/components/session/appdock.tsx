@@ -8,6 +8,7 @@ import Chat from "./interactive/chat"
 import Participants from "./interactive/participants"
 import { UserProps } from "@/types/session.types"
 import { transformSDP } from "../utils/sdp.transform"
+import Inactives from "./interactive/inactives"
 
 export default function AppDock() {
     /* ----- STATES & HOOKS ----- */
@@ -285,9 +286,13 @@ function Dock() {
     </div>
 }
 function Interactive() {
+    /* ----- STATES & HOOKS ----- */
+    const { host } = useSession()
+    /* -------- RENDERING ------- */
     return <div //* CONTAINER
         className="flex gap-[16px] justify-center items-center">
         <Chat />
         <Participants />
+        {host && <Inactives />}
     </div>
 }
