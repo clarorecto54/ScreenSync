@@ -17,19 +17,19 @@ export function transformSDP(sdp: string) {
         { type: "TIAS", limit: quality }
     ]
     //* CODEC LIST
-    const h264Extra: string = ";max-br=100000000;max-mbps=100000;max-fr=60;"
+    const h264Extra: string = ";max-br=100000000;max-mbps=100000;max-fr=60"
     const videoCodecs: { codec: string, config: string }[] = [
         { codec: "H264", config: "level-asymmetry-allowed=1;packetization-mode=1;profile-level-id=64001f".concat(h264Extra) },
-        { codec: "VP9", config: "profile-id=0;max-fr=60;max-fs=10000" },
-        { codec: "AV1", config: "" },
-        { codec: "VP8", config: "" },
         { codec: "H264", config: "level-asymmetry-allowed=1;packetization-mode=1;profile-level-id=4d001f".concat(h264Extra) },
-        { codec: "H264", config: "level-asymmetry-allowed=1;packetization-mode=0;profile-level-id=4d001f".concat(h264Extra) },
         { codec: "H264", config: "level-asymmetry-allowed=1;packetization-mode=1;profile-level-id=42e01f".concat(h264Extra) },
-        { codec: "H264", config: "level-asymmetry-allowed=1;packetization-mode=0;profile-level-id=42e01f".concat(h264Extra) },
         { codec: "H264", config: "level-asymmetry-allowed=1;packetization-mode=1;profile-level-id=42001f".concat(h264Extra) },
-        { codec: "H264", config: "level-asymmetry-allowed=1;packetization-mode=0;profile-level-id=42001f".concat(h264Extra) },
+        { codec: "VP8", config: "" },
+        { codec: "AV1", config: "" },
+        { codec: "VP9", config: "profile-id=0;max-fr=60;max-fs=10000" },
         { codec: "VP9", config: "profile-id=2;max-fr=60;max-fs=10000" },
+        { codec: "H264", config: "level-asymmetry-allowed=1;packetization-mode=0;profile-level-id=4d001f".concat(h264Extra) },
+        { codec: "H264", config: "level-asymmetry-allowed=1;packetization-mode=0;profile-level-id=42e01f".concat(h264Extra) },
+        { codec: "H264", config: "level-asymmetry-allowed=1;packetization-mode=0;profile-level-id=42001f".concat(h264Extra) },
     ]
     //* TEMPLATES
     const GoogleFlags = [
@@ -42,21 +42,22 @@ export function transformSDP(sdp: string) {
         //* CODEC
         payloads.push(payload) //? Add VP8 Payload Code
         rtp.push({ payload: payload, codec, rate: rate ?? 90000, encoding: encoding ?? undefined }) //? Codec name
-        if (config) fmtp.push({ payload: payload, config }) //? Codec config
+        if (config) fmtp.push({ payload: payload, config: config.concat(";ulpfec=1") }) //? Codec config
         rtcpfbPayloads.push(payload) //? Add the codec payload for acknowledgement config
         //* RTX
         payloads.push(payload + 1) //? Add RTX to the payload
         rtp.push({ payload: payload + 1, codec: "rtx", rate: rate ?? 90000 }) //? Codec name
-        fmtp.push({ payload: payload + 1, config: `apt=${payload}` }) //? Retransmit to the payload of previous codec
+        fmtp.push({ payload: payload + 1, config: `apt=${payload};ulpfec=1` }) //? Retransmit to the payload of previous codec
     }
     function addRTPRTX(payload: number, codec: string, rate?: number, config?: string) {
         //* RTP
         payloads.push(payload) //? Adds RTP payload into the list of payloads
         rtp.push({ payload: payload, codec: codec, rate: rate ?? 90000 }) //? Adds in RTP
+        if (config) { fmtp.push({ payload, config: config.concat(";ulpfec=1") }) }
         //* RTX
         payloads.push(payload + 1) //? Adds payload of RTP Retransmission into the payload list
         rtp.push({ payload: payload + 1, codec: "rtx", rate: rate ?? 90000 }) //? Adds the Retransmission to the RTP
-        fmtp.push({ payload: payload + 1, config: config ?? `apt=${payload}` }) //? Retransmission of RTP
+        fmtp.push({ payload: payload + 1, config: `apt=${payload};ulpfec=1` }) //? Retransmission of RTP
     }
     function addRTPOnly(payload: number, codec: string, rate?: number) {
         //* RTP ONLY
@@ -96,8 +97,12 @@ export function transformSDP(sdp: string) {
                     addCODEC(startingPayload, codec, config)
                     startingPayload += 2
                 })
+                //* RED [PACKET REDUNDANCY] (121)
+                addRTPRTX(121, "red", undefined, "apt=99")
+                //* RED [PACKET REDUNDANCY] (123)
+                addRTPRTX(123, "red", undefined, "apt=99")
                 //* RED [PACKET REDUNDANCY] (125)
-                addRTPRTX(125, "red")
+                addRTPRTX(125, "red", undefined, "apt=99")
                 //* PACKET ERROR CORRECTION (127)
                 addRTPOnly(127, "ulpfec")
                 //* APPLYING NEW CODECS
@@ -120,7 +125,7 @@ export function transformSDP(sdp: string) {
                 //* RED [PACKET REDUNDANCY] (96)
                 payloads.push(96)
                 rtp.push({ payload: 96, codec: "red", rate: 48000, encoding: 2 })
-                fmtp.push({ payload: 96, config: "97" })
+                fmtp.push({ payload: 96, config: "97/97/97/98" })
                 //* OPUS (97)
                 payloads.push(97)
                 rtp.push({ payload: 97, codec: "opus", rate: 48000, encoding: 2 })
@@ -164,11 +169,12 @@ export function transformSDP(sdp: string) {
                 break
         }
     })
+    const finalSDP: string = write(modifiedSDP).replaceAll("262144", "2000000000")
     // console.clear()
     // console.log("Original SDP: ", sdp) //? Show Original SDP
-    // console.log(write(modifiedSDP).replaceAll("262144", "2000000000")) //? Show Modified SDP
+    // console.log(finalSDP) //? Show Modified SDP
     // return sdp //? Return Original SDP
-    return write(modifiedSDP).replaceAll("262144", "2000000000") //? Return the modified SDP with the new max packet size
+    return finalSDP //? Return the modified SDP with the new max packet size
 }
 function generateRTCPFB(payloads: number[]) {
     const rtcpFb: MediaAttributes["rtcpFb"] = []

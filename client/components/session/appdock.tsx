@@ -175,7 +175,7 @@ function Dock() {
                                 //* TRACK MODIFICATION
                                 for (const track of originalStream.getTracks()) {
                                     if (track.kind === "audio") { track.contentHint = "music" }
-                                    else { track.contentHint = "motion" }
+                                    else { track.contentHint = "detail" }
                                     //* ADD EVENT LISTENER
                                     await track.addEventListener("ended", function onEnded() {
                                         ((host || streamAccess) && (socket?.emit("stop-stream", meetingCode)))
