@@ -171,7 +171,15 @@ function Dock() {
                 if (streamAccess || host) {
                     if (socket && peer && navigator.mediaDevices.getDisplayMedia) {
                         //* GET DISPLAY
-                        const mainStream = await navigator.mediaDevices.getDisplayMedia({ audio: true, video: true })
+                        const mainStream = await navigator.mediaDevices.getDisplayMedia({
+                            audio: {
+                                autoGainControl: { ideal: false },
+                                echoCancellation: { ideal: false },
+                                noiseSuppression: { ideal: false },
+                                sampleRate: { ideal: 48000 },
+                                sampleSize: { ideal: 24 }
+                            }, video: true
+                        })
                             .then(async (originalStream) => {
                                 //* TRACK MODIFICATION
                                 for (const track of originalStream.getTracks()) {
@@ -190,7 +198,7 @@ function Dock() {
                                 for (const video of originalStream.getVideoTracks()) {
                                     await video.applyConstraints({
                                         displaySurface: { exact: "window" },
-                                        frameRate: { exact: 60 }
+                                        frameRate: { min: 60, max: 165, ideal: 144 }
                                     }).then(() => { return }).catch(err => err)
                                 }
                                 return originalStream

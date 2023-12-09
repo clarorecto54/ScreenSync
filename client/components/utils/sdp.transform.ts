@@ -2,7 +2,7 @@ import { write, parse, SessionDescription, MediaAttributes } from "sdp-transform
 export function transformSDP(sdp: string) {
     const modifiedSDP: SessionDescription = parse(sdp)
     const quality: number = 1000000 * 2000
-    const fps: number = 60
+    const fps: number = 144
     //* INITAITE NEW CODECS
     var payloads: number[] = []
     var rtp: MediaAttributes["rtp"] = []
@@ -22,8 +22,9 @@ export function transformSDP(sdp: string) {
         "x-google-max-bitrate=100000000",
         "x-google-max-quantization=30",
         "x-google-min-quantization=20",
+        "sprop-maxcapturerate=144"
     ].join(';')
-    const h264Extra: string = ";max-br=100000000;max-mbps=100000;max-fr=60"
+    const h264Extra: string = ";max-br=100000000;max-mbps=100000;max-fr=144"
     const videoCodecs: { codec: string, config: string }[] = [
         { codec: "H264", config: "level-asymmetry-allowed=1;packetization-mode=1;profile-level-id=64001f".concat(h264Extra).concat(`;${GoogleFlags}`) },
         { codec: "H264", config: "level-asymmetry-allowed=1;packetization-mode=1;profile-level-id=4d001f".concat(h264Extra).concat(`;${GoogleFlags}`) },
@@ -31,8 +32,8 @@ export function transformSDP(sdp: string) {
         { codec: "H264", config: "level-asymmetry-allowed=1;packetization-mode=1;profile-level-id=42001f".concat(h264Extra).concat(`;${GoogleFlags}`) },
         { codec: "VP8", config: "".concat(`;${GoogleFlags}`) },
         { codec: "AV1", config: "".concat(`;${GoogleFlags}`) },
-        { codec: "VP9", config: "profile-id=0;max-fr=60;max-fs=10000".concat(`;${GoogleFlags}`) },
-        { codec: "VP9", config: "profile-id=2;max-fr=60;max-fs=10000".concat(`;${GoogleFlags}`) },
+        { codec: "VP9", config: "profile-id=0;max-fr=144;max-fs=10000".concat(`;${GoogleFlags}`) },
+        { codec: "VP9", config: "profile-id=2;max-fr=144;max-fs=10000".concat(`;${GoogleFlags}`) },
         { codec: "H264", config: "level-asymmetry-allowed=1;packetization-mode=0;profile-level-id=4d001f".concat(h264Extra).concat(`;${GoogleFlags}`) },
         { codec: "H264", config: "level-asymmetry-allowed=1;packetization-mode=0;profile-level-id=42e01f".concat(h264Extra).concat(`;${GoogleFlags}`) },
         { codec: "H264", config: "level-asymmetry-allowed=1;packetization-mode=0;profile-level-id=42001f".concat(h264Extra).concat(`;${GoogleFlags}`) },
