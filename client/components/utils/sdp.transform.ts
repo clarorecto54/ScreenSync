@@ -17,27 +17,27 @@ export function transformSDP(sdp: string) {
         { type: "TIAS", limit: quality }
     ]
     //* CODEC LIST
-    const h264Extra: string = ";max-br=100000000;max-mbps=100000;max-fr=60"
-    const videoCodecs: { codec: string, config: string }[] = [
-        { codec: "H264", config: "level-asymmetry-allowed=1;packetization-mode=1;profile-level-id=64001f".concat(h264Extra) },
-        { codec: "H264", config: "level-asymmetry-allowed=1;packetization-mode=1;profile-level-id=4d001f".concat(h264Extra) },
-        { codec: "H264", config: "level-asymmetry-allowed=1;packetization-mode=1;profile-level-id=42e01f".concat(h264Extra) },
-        { codec: "H264", config: "level-asymmetry-allowed=1;packetization-mode=1;profile-level-id=42001f".concat(h264Extra) },
-        { codec: "VP8", config: "" },
-        { codec: "AV1", config: "" },
-        { codec: "VP9", config: "profile-id=0;max-fr=60;max-fs=10000" },
-        { codec: "VP9", config: "profile-id=2;max-fr=60;max-fs=10000" },
-        { codec: "H264", config: "level-asymmetry-allowed=1;packetization-mode=0;profile-level-id=4d001f".concat(h264Extra) },
-        { codec: "H264", config: "level-asymmetry-allowed=1;packetization-mode=0;profile-level-id=42e01f".concat(h264Extra) },
-        { codec: "H264", config: "level-asymmetry-allowed=1;packetization-mode=0;profile-level-id=42001f".concat(h264Extra) },
-    ]
-    //* TEMPLATES
-    const GoogleFlags = [
+    const GoogleFlags: string = [
         "x-google-start-bitrate=90000000",
         "x-google-max-bitrate=100000000",
         "x-google-max-quantization=30",
         "x-google-min-quantization=20",
+    ].join(';')
+    const h264Extra: string = ";max-br=100000000;max-mbps=100000;max-fr=60"
+    const videoCodecs: { codec: string, config: string }[] = [
+        { codec: "H264", config: "level-asymmetry-allowed=1;packetization-mode=1;profile-level-id=64001f".concat(h264Extra).concat(`;${GoogleFlags}`) },
+        { codec: "H264", config: "level-asymmetry-allowed=1;packetization-mode=1;profile-level-id=4d001f".concat(h264Extra).concat(`;${GoogleFlags}`) },
+        { codec: "H264", config: "level-asymmetry-allowed=1;packetization-mode=1;profile-level-id=42e01f".concat(h264Extra).concat(`;${GoogleFlags}`) },
+        { codec: "H264", config: "level-asymmetry-allowed=1;packetization-mode=1;profile-level-id=42001f".concat(h264Extra).concat(`;${GoogleFlags}`) },
+        { codec: "VP8", config: "".concat(`;${GoogleFlags}`) },
+        { codec: "AV1", config: "".concat(`;${GoogleFlags}`) },
+        { codec: "VP9", config: "profile-id=0;max-fr=60;max-fs=10000".concat(`;${GoogleFlags}`) },
+        { codec: "VP9", config: "profile-id=2;max-fr=60;max-fs=10000".concat(`;${GoogleFlags}`) },
+        { codec: "H264", config: "level-asymmetry-allowed=1;packetization-mode=0;profile-level-id=4d001f".concat(h264Extra).concat(`;${GoogleFlags}`) },
+        { codec: "H264", config: "level-asymmetry-allowed=1;packetization-mode=0;profile-level-id=42e01f".concat(h264Extra).concat(`;${GoogleFlags}`) },
+        { codec: "H264", config: "level-asymmetry-allowed=1;packetization-mode=0;profile-level-id=42001f".concat(h264Extra).concat(`;${GoogleFlags}`) },
     ]
+    //* TEMPLATES
     function addCODEC(payload: number, codec: string, config: string, rate?: number, encoding?: number) {
         //* CODEC
         payloads.push(payload) //? Add VP8 Payload Code
@@ -76,7 +76,7 @@ export function transformSDP(sdp: string) {
         modifiedSDP.media[mediaIndex].framerate = fps //? Set the framerate
         modifiedSDP.media[mediaIndex].ptime = 20 //? Minimum Packeting time
         modifiedSDP.media[mediaIndex].maxptime = 30 //? Max Packeting time
-        modifiedSDP.media[mediaIndex].xGoogleFlag = GoogleFlags.join(";")
+        modifiedSDP.media[mediaIndex].xGoogleFlag = GoogleFlags
         //* VIDEO & AUDIO MODIFICATIONS
         switch (media.type) {
             case "video":

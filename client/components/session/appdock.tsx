@@ -218,7 +218,7 @@ function Dock() {
                                         params.encodings.forEach(encoding => {
                                             encoding.priority = "high"
                                             encoding.networkPriority = "high"
-                                            encoding.maxBitrate = 2000000000
+                                            encoding.maxBitrate = 100000000
                                             encoding.maxFramerate = 60
                                             encoding.scaleResolutionDownBy = 1
                                         })
