@@ -1,8 +1,8 @@
 import { write, parse, SessionDescription, MediaAttributes } from "sdp-transform"
 export function transformSDP(sdp: string) {
     const modifiedSDP: SessionDescription = parse(sdp)
-    const quality: number = 1000000 * 2000
-    const fps: number = 144
+    const quality: number = 1000000000
+    const fps: number = 60
     //* INITAITE NEW CODECS
     var payloads: number[] = []
     var rtp: MediaAttributes["rtp"] = []
@@ -18,13 +18,13 @@ export function transformSDP(sdp: string) {
     ]
     //* CODEC LIST
     const GoogleFlags: string = [
-        "x-google-start-bitrate=90000000",
-        "x-google-max-bitrate=100000000",
-        "x-google-max-quantization=30",
+        "x-google-start-bitrate=40000000",
+        "x-google-max-bitrate=50000000",
         "x-google-min-quantization=20",
-        "sprop-maxcapturerate=144"
+        "x-google-max-quantization=30",
+        "sprop-maxcapturerate=60"
     ].join(';')
-    const h264Extra: string = ";max-br=100000000;max-mbps=100000;max-fr=144"
+    const h264Extra: string = ";max-br=50000000;max-mbps=50000;max-fr=60"
     const videoCodecs: { codec: string, config: string }[] = [
         { codec: "H264", config: "level-asymmetry-allowed=1;packetization-mode=1;profile-level-id=64001f".concat(h264Extra).concat(`;${GoogleFlags}`) },
         { codec: "H264", config: "level-asymmetry-allowed=1;packetization-mode=1;profile-level-id=4d001f".concat(h264Extra).concat(`;${GoogleFlags}`) },
@@ -32,8 +32,8 @@ export function transformSDP(sdp: string) {
         { codec: "H264", config: "level-asymmetry-allowed=1;packetization-mode=1;profile-level-id=42001f".concat(h264Extra).concat(`;${GoogleFlags}`) },
         { codec: "VP8", config: "".concat(`;${GoogleFlags}`) },
         { codec: "AV1", config: "".concat(`;${GoogleFlags}`) },
-        { codec: "VP9", config: "profile-id=0;max-fr=144;max-fs=10000".concat(`;${GoogleFlags}`) },
-        { codec: "VP9", config: "profile-id=2;max-fr=144;max-fs=10000".concat(`;${GoogleFlags}`) },
+        { codec: "VP9", config: "profile-id=0;max-fr=60;max-fs=10000".concat(`;${GoogleFlags}`) },
+        { codec: "VP9", config: "profile-id=2;max-fr=60;max-fs=10000".concat(`;${GoogleFlags}`) },
         { codec: "H264", config: "level-asymmetry-allowed=1;packetization-mode=0;profile-level-id=4d001f".concat(h264Extra).concat(`;${GoogleFlags}`) },
         { codec: "H264", config: "level-asymmetry-allowed=1;packetization-mode=0;profile-level-id=42e01f".concat(h264Extra).concat(`;${GoogleFlags}`) },
         { codec: "H264", config: "level-asymmetry-allowed=1;packetization-mode=0;profile-level-id=42001f".concat(h264Extra).concat(`;${GoogleFlags}`) },
@@ -141,9 +141,9 @@ export function transformSDP(sdp: string) {
                         "minptime=20",
                         "ptime=15",
                         "maxptime=30",
-                        "maxaveragebitrate=320000000",
-                        "maxplaybackrate=320000000",
-                        "sprop-maxcapturerate=320000000"
+                        "maxaveragebitrate=320000",
+                        "maxplaybackrate=320000",
+                        "sprop-maxcapturerate=320000"
                     ].join(";")
                 })
                 rtcpfbPayloads.push(97)
@@ -170,7 +170,7 @@ export function transformSDP(sdp: string) {
                 break
         }
     })
-    const finalSDP: string = write(modifiedSDP).replaceAll("262144", "2000000000")
+    const finalSDP: string = write(modifiedSDP).replaceAll("26260", "125000000")
     // console.clear()
     // console.log("Original SDP: ", sdp) //? Show Original SDP
     // console.log(finalSDP) //? Show Modified SDP

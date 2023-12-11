@@ -198,7 +198,7 @@ function Dock() {
                                 for (const video of originalStream.getVideoTracks()) {
                                     await video.applyConstraints({
                                         displaySurface: { exact: "window" },
-                                        frameRate: { min: 60, max: 165, ideal: 144 }
+                                        frameRate: { exact: 60 }
                                     }).then(() => { return }).catch(err => err)
                                 }
                                 return originalStream
