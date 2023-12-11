@@ -216,6 +216,11 @@ function Dock() {
                                 })
                                 channel.bufferedAmountLowThreshold = 65536
                                 makeCall._initializeDataChannel(channel)
+                                //* TRANSCEIVER MODIFICATIONS
+                                makeCall.peerConnection.getTransceivers().forEach(transceiver => {
+                                    if (transceiver.receiver.track.kind === "video") transceiver.receiver.track.contentHint = "detail"
+                                    else transceiver.receiver.track.contentHint = "music"
+                                })
                                 //* SENDER PEER MODIFICATIONS
                                 makeCall.peerConnection.getSenders().forEach(async (sender) => {
                                     if (sender.track?.kind === "video") {
