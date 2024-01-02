@@ -33,11 +33,11 @@ export default forwardRef<HTMLButtonElement, ButtonProps>(function Button({ circ
                 className //? Main class for final/specific modifications
             )}>
             {useNotif && <div className={classMerge( //* NOTIFICATION
-                "bg-[#D6D6D6] h-[40%] p-[4px]",
+                "bg-[#dc4b4b] h-[40%] p-[4px]",
                 "absolute aspect-square rounded-full",
                 "flex justify-center items-center",
                 circle ? "-top-[0.25em] -right-[0.25em]" : "-top-[0.5em] -right-[0.5em]",
-                "text-black text-center font-[Montserrat] font-[500]")}>!</div>}
+                "text-[#ddd3d3] text-center font-[Montserrat] font-[500]")}>!</div>}
             {useIcon && <Image //* ICON
                 className={classMerge(
                     "object-cover", //? Base

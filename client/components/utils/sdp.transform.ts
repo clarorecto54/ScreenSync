@@ -158,16 +158,6 @@ export function transformSDP(sdp: string) {
                 modifiedSDP.media[mediaIndex].rtcpFb = generateRTCPFB(rtcpfbPayloads)
                 break
             default:
-                // //* INITAITE NEW CODECS
-                // payloads = []
-                // rtp = []
-                // fmtp = []
-                // rtcpfbPayloads = []
-                // //* CLEAR DEFAULTS
-                // modifiedSDP.media[mediaIndex].payloads = "" //? Clear out payloads
-                // modifiedSDP.media[mediaIndex].rtp = [] //? Clear out default codecs
-                // modifiedSDP.media[mediaIndex].fmtp = [] //? Clear out deafult configs
-                // modifiedSDP.media[mediaIndex].rtcpFb = [] //? Clear out acknowledgement
                 break
         }
     })
