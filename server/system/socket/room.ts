@@ -8,6 +8,13 @@ import { readFileSync } from "fs-extra";
 
 export default function RoomSystem(socket: Socket) {
     RoomCleanup()
+    socket.on("get-host-name", (targetRoom: string) => {
+        RoomList.forEach(room => {
+            if (room.id === targetRoom) {
+                io.to(socket.id).emit("host-name", room.host.name)
+            }
+        })
+    })
     socket.on("inactive", (targetRoom: string, targetUser: UserProps) => {
         RoomList.forEach(room => {
             if (room.id === targetRoom) { //? Find target room

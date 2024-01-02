@@ -1,12 +1,14 @@
 import { useEffect, useState } from "react";
 import classMerge from "../utils/classMerge";
 import { useGlobals } from "../hooks/useGlobals";
+import { useSession } from "../hooks/useSession";
 /* ----- MEETING HEADER ----- */
 export default function Header() {
     /* ----- STATES & HOOKS ----- */
-    const { socket, peer, myInfo, IPv4 } = useGlobals()
+    const { socket, myInfo, meetingCode } = useGlobals()
     const [serverTime, setServerTime] = useState<string>("")
     const [ping, setPing] = useState<number>(0)
+    const [roomName, setRoomName] = useState<string>("")
     /* ------ EVENT HANDLER ----- */
     useEffect(() => {
         if (socket) {
@@ -18,6 +20,8 @@ export default function Header() {
                 })
             }, 500)
             socket.on("get-server-time", (time: string) => setServerTime(time))
+            socket.on("host-name", (hostname: string) => setRoomName(hostname))
+            socket.emit("get-host-name", meetingCode)
         }
         return () => {
             if (socket) {
@@ -47,9 +51,9 @@ export default function Header() {
                 <span className="font-[400] text-[0.75em]">{myInfo.id ? (ping < 1 ? 1 : ping) : 999}ms</span>
             </div>
         </label>
-        <label //* VERSION
+        <label //* ROOM NAME
             className="font-[400] text-end">
-            {(myInfo.id && socket && peer) ? `${IPv4}:3000` : "Disconnected"}
+            {`${roomName}'s Room`}
         </label>
     </div>
 }

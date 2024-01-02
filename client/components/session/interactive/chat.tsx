@@ -4,7 +4,7 @@ import { useGlobals } from "@/components/hooks/useGlobals";
 import { useSession } from "@/components/hooks/useSession";
 import classMerge from "@/components/utils/classMerge";
 import { MessageProps } from "@/types/session.types";
-import { useEffect, useState } from "react";
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
 export default function Chat() {
     /* ----- STATES & HOOKS ----- */
     const { socket, meetingCode } = useGlobals()
@@ -26,7 +26,7 @@ export default function Chat() {
     /* -------- RENDERING ------- */
     return <div //* CONTAINER
         className="relative flex justify-center items-center">
-        {interactive.includes("chat") && <Log chatlog={chatlog} />}
+        {interactive.includes("chat") && <Log chatlog={chatlog} setnewchat={setnewchat} />}
         <Button //* CHAT
             circle useIcon iconOverlay iconSrc={require("@/public/images/Chat.svg")}
             onClick={() => {
@@ -40,7 +40,7 @@ export default function Chat() {
             )} />
     </div>
 }
-function Log({ chatlog }: { chatlog: MessageProps[] }) {
+function Log({ chatlog, setnewchat }: { chatlog: MessageProps[], setnewchat: Dispatch<SetStateAction<boolean>> }) {
     /* ----- STATES & HOOKS ----- */
     const { socket, meetingCode, myInfo } = useGlobals()
     const { muted } = useSession()
@@ -127,9 +127,10 @@ function Log({ chatlog }: { chatlog: MessageProps[] }) {
                 "flex gap-[0.5em] justify-center items-center ", //? Base
             )}>
             <Textbox //* TEXTBOX
-                circle value={message} maxLength={255} type=""
+                circle value={message} maxLength={255} autoComplete="off"
                 id="message" placeholder="Type your message here"
                 onChange={(thisElement) => setMessage(thisElement.target.value)}
+                onFocus={() => setnewchat(false)}
                 containerClass="focus-within:border-0 w-full"
                 className={classMerge(
                     "bg-[#88888850] text-white", //? Base
