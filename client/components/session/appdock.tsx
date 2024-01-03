@@ -254,11 +254,11 @@ function Dock() {
                 "bg-[#525252]", //? Background
                 "hover:bg-[#646464]", //? Hover
             )} />}
-        {(presenting && host && calls.length === 0) && < Button //* STOP SHARE SCREEN
+        {(presenting && (host || streamAccess)) && < Button //* STOP SHARE SCREEN
             circle useIcon iconSrc={require("@/public/images/Share Screen (1).svg")}
             iconOverlay customOverlay={(presenting || (!streamAccess && !host)) ? "redOverlay" : undefined}
             onClick={() => {
-                if (host) {
+                if (host || streamAccess) {
                     calls.forEach(call => call.close())
                     setcalls([])
                 }

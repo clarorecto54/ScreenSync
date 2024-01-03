@@ -71,33 +71,7 @@ function StreamDisplay() {
             "transition-[opacity] duration-1000", //? Animation
         )}>
         {!stream && <div className="h-full w-full font-[600] font-[Montserrat] flex justify-center items-center">No Stream</div>}
-        {(stream && calls.length !== 0) && <div className={classMerge(
-            "h-full w-full", //? Sizing
-            "flex flex-col gap-[1em] justify-center items-center", //? Display
-            "font-[600] font-[Montserrat]", //? Font
-        )}>
-            Screen sharing is on
-            {(presenting && (host || streamAccess)) && < Button //* STOP PARTICIPANT'S SHARE SCREEN
-                circle useIcon iconSrc={require("@/public/images/Share Screen (1).svg")}
-                iconOverlay
-                onClick={() => {
-                    if (host || streamAccess) {
-                        calls.forEach(call => call.close())
-                        setcalls([])
-                    }
-                    if (stream) { for (const track of stream.getTracks()) { track.stop() } }
-                    socket?.emit("stop-stream", meetingCode)
-                    setstream(null)
-                    setpresenting(false)
-                    setstreamAcces(false)
-                }}
-                className={classMerge(
-                    "bg-[#DF2020] shadow-lg shadow-red-500", //? Background
-                    "animate-pulse transition-all duration-500", //? Animation
-                    "hover:bg-[#B21A1A] hover:scale-90", //? Hover
-                )} >Stop Screen Sharing</Button>}
-        </div>}
-        {(stream && calls.length === 0) && <video
+        {stream && <video
             autoPlay
             ref={streamRef}
             muted={mutestream}
