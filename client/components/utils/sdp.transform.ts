@@ -27,11 +27,11 @@ export function transformSDP(sdp: string) {
     ].join(';')
     const h264Extra: string = ";max-br=2000;max-fr=60"
     const videoCodecs: { codec: string, config: string }[] = [
+        { codec: "VP8", config: "".concat(`;${GoogleFlags}`) },
         { codec: "H264", config: "level-asymmetry-allowed=1;packetization-mode=1;profile-level-id=64001f".concat(h264Extra).concat(`;${GoogleFlags}`) },
         { codec: "H264", config: "level-asymmetry-allowed=1;packetization-mode=1;profile-level-id=4d001f".concat(h264Extra).concat(`;${GoogleFlags}`) },
         { codec: "H264", config: "level-asymmetry-allowed=1;packetization-mode=1;profile-level-id=42e01f".concat(h264Extra).concat(`;${GoogleFlags}`) },
         { codec: "H264", config: "level-asymmetry-allowed=1;packetization-mode=1;profile-level-id=42001f".concat(h264Extra).concat(`;${GoogleFlags}`) },
-        { codec: "VP8", config: "".concat(`;${GoogleFlags}`) },
         { codec: "AV1", config: "".concat(`;${GoogleFlags}`) },
         { codec: "VP9", config: "profile-id=0;max-fr=60;max-fs=10000".concat(`;${GoogleFlags}`) },
         { codec: "VP9", config: "profile-id=2;max-fr=60;max-fs=10000".concat(`;${GoogleFlags}`) },
