@@ -66,6 +66,30 @@ export default function RoomSystem(socket: Socket) {
         if (!existsSync(`../log/${room.id}/chats.txt`)) { writeFileSync(`../log/${room.id}/chats.txt`, "", "utf-8") }
         if (!existsSync(`../log/${room.id}/inactive.txt`)) { writeFileSync(`../log/${room.id}/inactive.txt`, "", "utf-8") }
     })
+    socket.on("req-entry", (targetRoom: string, targetUser: UserProps) => {
+        RoomList.forEach(room => {
+            if (room.id === targetRoom && room.pending) {
+                if (!room.participants.some(participant => participant.name === targetUser.name) && !room.pending.includes(targetUser)) {//? Make sure that the username is not used on the room or pending list
+                    room.pending.push(targetUser) //? Add the user to the pending list
+                } else { //? This function will trigger when username is already existed in the room or pending list
+                    io.to(targetUser.id).emit("existing-req")
+                }
+                io.to(room.host.id).emit("pending-list", room.pending) //? Send the updated pending list to the host
+            }
+        })
+        RoomCleanup()
+    })
+    socket.on("cancel-entry", (targetRoom: string, targetUser: UserProps) => {
+        RoomList.forEach(room => {
+            if (room.id === targetRoom && room.pending) {
+                room.pending = room.pending.filter(client => client.id !== targetUser.id) //? Remove user from the pending list
+                io.to(room.host.id).emit("pending-list", room.pending) //? Send the updated pending list to the host
+            }
+        })
+        RoomCleanup()
+    })
+    socket.on("accept-req", (targetRoom: string, targetUser: UserProps) => io.to(targetUser.id).emit("accept-req", targetRoom))
+    socket.on("cancel-req", (targetUser: UserProps) => io.to(targetUser.id).emit("cancel-req"))
     socket.on("join-room", (roomID: string, userInfo: UserProps) => {
         RoomList.forEach(room => { //? VALIDATION (Make sure the username is not existed in the room)
             if (room.id === roomID) { //? Find the specific room
@@ -73,7 +97,6 @@ export default function RoomSystem(socket: Socket) {
                     io.to(socket.id).emit("user-existed")
                 } else { //? Join room if username is not existed
                     if (((userInfo.IPv4 === room.host.IPv4) && (userInfo.name === room.host.name))) { //? Incase host got reconnected (New ID)
-                        console.log("Host ID renewed")
                         room.host.id = socket.id //? Update host ID
                     }
                     room.participants.push(userInfo) //? Adds user to the participants list
@@ -85,7 +108,7 @@ export default function RoomSystem(socket: Socket) {
                 }
                 if (room.stream.presenting) { //? If a late comer join the meeting while someone is presenting
                     setTimeout(() => {
-                        io.to(room.stream.hostID ?? room.stream.id).emit("get-stream", socket.id)
+                        io.to(room.stream.hostID ?? room.stream.streamer?.id).emit("get-stream", socket.id)
                         io.to(socket.id).emit("streaming")
                     }, 1000)
                 }
@@ -104,6 +127,8 @@ export default function RoomSystem(socket: Socket) {
             if (room.id === targetRoom) { //? Find the target room
                 if (room.host.id === socket.id) { //? If host leave the meeting
                     socket.broadcast.to(targetRoom).emit("dissolve-meeting")
+                    room.pending?.forEach(client => io.to(client.id).emit("cancel-req"))
+                    room.pending = undefined
                     room.participants = []
                     ServerLog("server", `[ ROOM ][ ${room.id} ] new room has deleted.`, true)
                 } else { //? If a participant leave the meeting

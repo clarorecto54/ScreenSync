@@ -17,6 +17,7 @@ const defaultValues: SessionProps = {
     stream: null,
     participantList: [],
     inactiveList: [],
+    pendingList: [],
     fullscreen: false,
     /* -------------------------- */
     sethost: () => { },
@@ -29,6 +30,7 @@ const defaultValues: SessionProps = {
     setstream: () => { },
     setParticipantList: () => { },
     setinactiveList: () => { },
+    setpendingList: () => { },
     setfullscreen: () => { },
 }
 const context = createContext<SessionProps>(defaultValues)
@@ -52,6 +54,7 @@ export function SessionContextProvider({ children }: { children: ReactNode }) {
     const [stream, setstream] = useState<MediaStream | null>(null)
     const [participantList, setParticipantList] = useState<UserProps[]>([])
     const [inactiveList, setinactiveList] = useState<UserProps[]>([])
+    const [pendingList, setpendingList] = useState<UserProps[]>([])
     const [fullscreen, setfullscreen] = useState<boolean>(false)
     /* ---- SESSION VALIDATOR --- */
     useEffect(() => {
@@ -70,6 +73,7 @@ export function SessionContextProvider({ children }: { children: ReactNode }) {
         socket?.emit("participant-list", meetingCode)
         socket?.emit("inactive-list", meetingCode)
         //* ON (RES)
+        socket?.on("pending-list", (pendingList: UserProps[]) => setpendingList(pendingList))
         socket?.on("inactive-list", (inactiveList: UserProps[]) => setinactiveList(inactiveList))
         socket?.on("participant-list", (participantList: UserProps[]) => setParticipantList(participantList))
         socket?.on("dissolve-meeting", () => {
@@ -94,6 +98,7 @@ export function SessionContextProvider({ children }: { children: ReactNode }) {
         return () => {
             document.removeEventListener("visibilitychange", VisibilityHandler)
             //* SOCKET CLEANUP
+            socket?.off("pending-list", (pendingList: UserProps[]) => setpendingList(pendingList))
             socket?.off("inactive-list", (inactiveList: UserProps[]) => setinactiveList(inactiveList))
             socket?.off("participant-list", (participantList: UserProps[]) => setParticipantList(participantList))
             socket?.off("dissolve-meeting", () => {
@@ -104,8 +109,8 @@ export function SessionContextProvider({ children }: { children: ReactNode }) {
             //* PEER ON (RES)
             peer?.off("call", call => {
                 call.answer(undefined, { sdpTransform: transformSDP })
-                call.on("stream", (mainStream) => setstream(mainStream))
-                call.on("close", () => {
+                call.off("stream", (mainStream) => setstream(mainStream))
+                call.off("close", () => {
                     call.close()
                     if (stream) { for (const track of stream.getTracks()) { track.stop() } }
                     setstream(null)
@@ -130,6 +135,7 @@ export function SessionContextProvider({ children }: { children: ReactNode }) {
         participantList,
         fullscreen,
         inactiveList,
+        pendingList,
         /* -------------------------- */
         sethost,
         setstreamAcces,
@@ -142,6 +148,7 @@ export function SessionContextProvider({ children }: { children: ReactNode }) {
         setParticipantList,
         setfullscreen,
         setinactiveList,
+        setpendingList,
     }
     return <context.Provider value={defaultValues}>{children}</context.Provider>
 }

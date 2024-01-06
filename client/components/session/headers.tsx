@@ -26,6 +26,7 @@ export default function Header() {
         return () => {
             if (socket) {
                 socket.off("get-server-time", (time: string) => setServerTime(time))
+                socket.off("host-name", (hostname: string) => setRoomName(hostname))
             }
         }
     }, [])

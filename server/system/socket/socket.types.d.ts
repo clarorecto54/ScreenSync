@@ -12,7 +12,7 @@ export interface MessageProps {
 }
 export interface StreamProps {
     hostID: string
-    id: string
+    streamer: UserProps | undefined
     presenting: boolean
 }
 export interface AttendanceProps {
@@ -25,8 +25,10 @@ export interface RoomProps {
     key: string
     host: UserProps
     participants: UserProps[]
+    pending: UserProps[] | undefined
     chatlog: MessageProps[]
     stream: StreamProps
     entries: AttendanceProps[]
     inactive: UserProps[]
+    strict: boolean
 }

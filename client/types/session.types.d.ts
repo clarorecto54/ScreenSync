@@ -12,6 +12,7 @@ interface SessionProps {
     stream: MediaStream | null
     participantList: UserProps[]
     inactiveList: UserProps[]
+    pendingList: UserProps[]
     fullscreen: boolean
     /* -------------------------- */
     sethost: Dispatch<SetStateAction<boolean>>
@@ -24,6 +25,7 @@ interface SessionProps {
     setstream: Dispatch<SetStateAction<MediaStream | null>>
     setParticipantList: Dispatch<SetStateAction<UserProps[]>>
     setinactiveList: Dispatch<SetStateAction<UserProps[]>>
+    setpendingList: Dispatch<SetStateAction<UserProps[]>>
     setfullscreen: Dispatch<SetStateAction<boolean>>
 }
 
@@ -41,7 +43,7 @@ interface MessageProps {
 }
 interface StreamProps {
     hostID: string
-    id: string
+    streamer: UserProps | undefined
     presenting: boolean
 }
 interface AttendanceProps {
@@ -54,8 +56,10 @@ interface RoomProps {
     key: string
     host: UserProps
     participants: UserProps[]
+    pending: UserProps[] | undefined
     chatlog: MessageProps[]
     stream: StreamProps
     entries: AttendanceProps[]
     inactive: UserProps[]
+    strict: boolean
 }

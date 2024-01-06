@@ -7,7 +7,7 @@ export default function StreamSystem(socket: Socket) {
     socket.on("start-stream", (targetRoom: string, streamer: UserProps) => {
         RoomList.forEach(room => {
             if (room.id === targetRoom) {
-                room.stream.id = streamer.id
+                room.stream.streamer = streamer
                 room.stream.presenting = true
             }
         })
@@ -17,7 +17,7 @@ export default function StreamSystem(socket: Socket) {
     socket.on("stop-stream", (targetRoom: string) => {
         RoomList.forEach(room => {
             if (room.id === targetRoom) {
-                room.stream.id = ""
+                room.stream.streamer = undefined
                 room.stream.presenting = false
             }
         })

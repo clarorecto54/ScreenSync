@@ -1,4 +1,4 @@
-import { UserProps } from "@/types/session.types";
+import { StreamProps, UserProps } from "@/types/session.types";
 import Textbox from "../atom/textbox";
 import classMerge from "../utils/classMerge";
 import Image from "next/image";
@@ -28,7 +28,7 @@ export default function SessionList() {
                 "h-full w-full max-h-[16em] p-[0.5em] pr-[0.5em] scroll-smooth ", //? Base
                 "flex flex-col gap-[0.75em] overflow-y-scroll", //? Display
             )}>
-            {roomList.map(({ id, host, participants, key }, index) => {
+            {roomList.map(({ id, host, participants, key, strict, stream }, index) => {
                 if (host.name.toUpperCase().includes(search.toUpperCase()) || id.toUpperCase().includes(search.toUpperCase())) {
                     return <SessionInfo
                         key={index}
@@ -36,6 +36,8 @@ export default function SessionList() {
                         host={host}
                         participants={participants}
                         meetingKey={key}
+                        strict={strict}
+                        stream={stream}
                     />
                 }
             })}
@@ -43,19 +45,28 @@ export default function SessionList() {
     </div >
 }
 
-function SessionInfo({ id, host, participants, meetingKey }: { id: string, host: UserProps, participants: UserProps[], meetingKey: string }) {
+function SessionInfo({ id, host, participants, meetingKey, strict, stream }: { id: string, host: UserProps, participants: UserProps[], meetingKey: string, strict: boolean, stream: StreamProps }) {
     /* ----- STATES & HOOKS ----- */
-    const { socket, myInfo } = useGlobals()
+    const { socket, myInfo, setsystemPopup } = useGlobals()
     const [keyinput, setKeyinput] = useState<string>("")
     const [showInput, setShowInput] = useState<boolean>(false)
     const [wrongKey, setWrongKey] = useState<boolean>(false)
     /* -------- RENDERING ------- */
     return <div //* SESSION INFO
         onClick={() => {
-            if (!meetingKey) { //? Join meeting
-                socket?.emit("join-room", id, myInfo)
+            if (!meetingKey && !strict) socket?.emit("join-room", id, myInfo) //? Join meeting
+            if (!meetingKey && strict) { //? Request Entry
+                socket?.emit("req-entry", id, myInfo)
+                setsystemPopup({
+                    type: "INFO",
+                    message: `Waiting for approval of "${host.name}". Please close to cancel.`,
+                    icon: require("@/public/images/Loading 1.svg"),
+                    closeAction() {
+                        socket?.emit("cancel-entry", id, myInfo) //? Cancel Request
+                    }
+                })
             }
-            else { setShowInput(true) }
+            if (meetingKey) setShowInput(true) //? Show input if there's a meeting key
         }}
         className={classMerge(
             "p-[0.5em] rounded-[0.5em] leading-5", //? Base
@@ -77,15 +88,40 @@ function SessionInfo({ id, host, participants, meetingKey }: { id: string, host:
                 sizes="100vw"
             />}
         </label>
-        <label className="pl-[0.25em] text-[0.8em] italic hover:cursor-pointer">{participants.length} participants</label>
+        <div //* ROOM STATUS
+            className="py-[0.25rem] flex items-center gap-[0.25rem]">
+            {stream.presenting && <label //* PRESENTING
+                className={classMerge(
+                    "flex p-[0.25em] px-[1.25em] rounded-full gap-[0.5em] items-center w-max hover:cursor-pointer", //? Base
+                    "bg-green-600 animate-pulse", //? Background
+                    "text-[0.5em] text-white font-[600]", //? Font
+                )}>PRESENTING</label>}
+            {strict && <label //* STRICT MODE
+                className={classMerge(
+                    "flex p-[0.25em] px-[1.25em] rounded-full gap-[0.5em] items-center w-max hover:cursor-pointer", //? Base
+                    "bg-red-600", //? Background
+                    "text-[0.5em] text-white font-[600]", //? Font
+                )}>STRICT</label>}
+        </div>
+        <label //* VIEWERS COUNT
+            className="pl-[0.25em] text-[0.8em] italic hover:cursor-pointer">{participants.length} participants</label>
         <label className="pl-[0.25em] w-full text-start text-[0.6em] font-[500] italic hover:cursor-pointer">{id}</label>
         <form //* KEY INPUT
             onSubmit={(thisElement) => {
                 thisElement.preventDefault()
-                if (meetingKey === keyinput) { //? Join Room
-                    socket?.emit("join-room", id, myInfo)
+                if (meetingKey === keyinput && !strict) socket?.emit("join-room", id, myInfo) //? Join Room
+                if (meetingKey === keyinput && strict) { //? Request Entry
+                    socket?.emit("req-entry", id, myInfo)
+                    setsystemPopup({
+                        type: "INFO",
+                        message: `Waiting for approval of "${host.name}". Please close to cancel.`,
+                        icon: require("@/public/images/Loading 1.svg"),
+                        closeAction() {
+                            socket?.emit("cancel-entry", id, myInfo) //? Cancel Request
+                        }
+                    })
                 }
-                else { setWrongKey(true) }
+                if (meetingKey !== keyinput) setWrongKey(true)
             }}
             className={classMerge(
                 "w-full", //? Base

@@ -22,6 +22,10 @@ export function SocketCleanup() {
         room.inactive = room.inactive.filter(client => activeSockets.includes(client.id))
         io.to(room.id).emit("participant-list", room.participants)
         io.to(room.id).emit("inactive-list", room.inactive)
+        if (room.pending) {
+            room.pending = room.pending.filter(client => activeSockets.includes(client.id))
+            io.to(room.id).emit("pending-list", room.pending)
+        }
     })
 }
 

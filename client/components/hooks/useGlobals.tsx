@@ -55,14 +55,31 @@ export function GlobalContextProvider({ children }: { children: ReactNode }) {
             //* EMIT (REQ)
             socket.emit("my-ipv4")
             //* ON (RES)
+            socket.on("existing-req", () => setsystemPopup({
+                type: "ERROR",
+                message: "Your username is already used in this room or someone in the pending list.",
+                icon: require("@/public/images/Participants.svg"),
+                closeAction() {
+                    window.location.reload()
+                },
+            }))
+            socket.on("cancel-req", () => setsystemPopup({
+                type: "ERROR",
+                message: "The host did not allow you to join.",
+                icon: require("@/public/images/Close 2.svg")
+            }))
             socket.on("alert", () => setsystemPopup({
                 type: "ALERT",
                 message: "Press close if you're there.",
                 icon: require("@/public/images/Alert.svg")
             }))
             socket.on("user-existed", () => setsystemPopup({
-                type: "ERROR", icon: require("@/public/images/Participants.svg"),
-                message: "Username is already existing on the room. Please change your username."
+                type: "ERROR",
+                message: "Username is already existing on the room. Please change your username.",
+                icon: require("@/public/images/Participants.svg"),
+                closeAction() {
+                    window.location.reload()
+                },
             }))
             socket.on("join-room", (targetRoom: string) => {
                 setmeetingCode(targetRoom)
@@ -93,14 +110,31 @@ export function GlobalContextProvider({ children }: { children: ReactNode }) {
         }
         return () => {
             if (socket) {
+                socket.off("existing-req", () => setsystemPopup({
+                    type: "ERROR",
+                    message: "Your username is already used in this room or someone in the pending list.",
+                    icon: require("@/public/images/Participants.svg"),
+                    closeAction() {
+                        window.location.reload()
+                    },
+                }))
+                socket.off("cancel-req", () => setsystemPopup({
+                    type: "ERROR",
+                    message: "The host did not allow you to join.",
+                    icon: require("@/public/images/Close 2.svg")
+                }))
                 socket.off("alert", () => setsystemPopup({
                     type: "ALERT",
                     message: "Press close if you're there.",
                     icon: require("@/public/images/Alert.svg")
                 }))
                 socket.off("user-existed", () => setsystemPopup({
-                    type: "ERROR", icon: require("@/public/images/Participants.svg"),
-                    message: "Username is already existing on the room. Please change your username."
+                    type: "ERROR",
+                    message: "Username is already existing on the room. Please change your username.",
+                    icon: require("@/public/images/Participants.svg"),
+                    closeAction() {
+                        window.location.reload()
+                    },
                 }))
                 socket.off("join-room", (targetRoom: string) => {
                     setmeetingCode(targetRoom)
@@ -131,6 +165,18 @@ export function GlobalContextProvider({ children }: { children: ReactNode }) {
             }
         }
     }, [socket])
+    useEffect(() => { //? This event handler is specifically used for accepted request of a client after requesting an access of a room
+        if (socket && myInfo.name.length > 3) socket.on("accept-req", (targetRoom: string) => {
+            setsystemPopup(null) //? Close popup
+            socket.emit("join-room", targetRoom, myInfo) //? Join meeting
+        })
+        return () => {
+            if (socket) socket.off("accept-req", (targetRoom: string) => {
+                setsystemPopup(null) //? Close popup
+                socket.emit("join-room", targetRoom, myInfo) //? Join meeting
+            })
+        }
+    }, [myInfo])
     /* -------- PROVIDER -------- */
     const defaultValues: GlobalProps = {
         socket, setsocket,

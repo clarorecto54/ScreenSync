@@ -17,18 +17,19 @@ export default function SystemPopup() {
                 "", //? Base
                 "flex justify-center items-center gap-[1.25em]", //? Display
             )}>
-            <Image //* MESSAGE ICON
+            {typeof systemPopup?.message === "string" && <Image //* MESSAGE ICON
                 className={classMerge(
                     "h-[3em] w-[3em] object-cover", //? Base
                     systemPopup?.type === "ERROR" ? "redOverlay" : "blueOverlay", //? Overlay
                     systemPopup?.type === "ALERT" && "yellowOverlay"
                 )}
                 src={systemPopup?.icon ? systemPopup.icon : require("@/public/images/Missing.svg")}
-                alt="" />
-            <label //* MESSAGE
+                alt="" />}
+            {typeof systemPopup?.message === "string" && <label //* MESSAGE
                 className="font-[500] font-[Montserrat] text-[1em] max-w-[24em]">
                 {systemPopup?.message}
-            </label>
+            </label>}
+            {typeof systemPopup?.message !== "string" && systemPopup?.message}
         </div>
         <div className="flex gap-[0.5em] justify-center items-center">
             {systemPopup?.action && <Button //* ACTION BUTTON
@@ -40,15 +41,18 @@ export default function SystemPopup() {
                 className={classMerge(
                     "bg-green-500 text-[0.6em]", //? Base
                     "hover:scale-90 transition-all duration-500", //? Animation
-                )} >Yes</Button>}
+                )} >{systemPopup.actionText ?? "Yes"}</Button>}
             <Button //* CLOSE BUTTON
                 circle useIcon iconOverlay iconSrc={require("@/public/images/Close 2.svg")}
-                onClick={() => setsystemPopup(null)}
+                onClick={() => {
+                    (systemPopup?.closeAction && systemPopup.closeAction())
+                    setsystemPopup(null)
+                }}
                 className={classMerge(
                     "bg-red-500 text-[0.6em] shadow-lg drop-shadow-sm", //? Base
                     !systemPopup?.action && "bg-green-500", //? Conditional
                     "hover:scale-90 transition-all duration-500", //? Animation
-                )} >{systemPopup?.action ? "No" : "Close"}</Button>
+                )} >{systemPopup?.closeText ?? (systemPopup?.action ? "No" : "Close")}</Button>
         </div>
     </div>
 }

@@ -65,12 +65,18 @@ function Input() {
         meetingCode, setmeetingCode,
     } = useGlobals()
     const [key, setKey] = useState<string>("")
+    const [strict, setStrict] = useState<boolean>(false)
     /* ------ EVENT HANDLER ----- */
     useEffect(() => {
         meetingCode && redirect(`/${meetingCode}`, RedirectType.replace)
     }, [meetingCode])
     /* -------- RENDERING ------- */
     return <form //* INPUTS CONTAINER
+        className={
+            classMerge(
+                "flex flex-col gap-[1em] justify-center items-center", //? Display
+            )
+        }
         onSubmit={(thisElement) => { //? Start meeting
             thisElement.preventDefault()
             if (myInfo.name.length > 3) {
@@ -79,20 +85,17 @@ function Input() {
                     key: key,
                     host: myInfo,
                     participants: [myInfo],
-                    stream: { hostID: myInfo.id, id: "", presenting: false },
+                    pending: strict ? [] : undefined,
+                    stream: { hostID: myInfo.id, streamer: undefined, presenting: false },
                     entries: [],
                     chatlog: [],
-                    inactive: []
+                    inactive: [],
+                    strict: strict
                 }
                 socket?.emit("create-room", room)
                 setmeetingCode(room.id)
             }
-        }}
-        className={
-            classMerge(
-                "flex flex-col gap-[1em] justify-center items-center", //? Display
-            )
-        } >
+        }}>
         <div //* INPUT CONTAINER
             className="flex flex-col gap-[0.5em]">
             <Textbox //* NAME
@@ -105,6 +108,27 @@ function Input() {
                 value={key} onChange={(thisElement) => setKey(thisElement.target.value)}
                 id="key" useIcon iconSrc={require("@/public/images/Key.svg")}
                 placeholder="Key is optional" />}
+            {myInfo.name.length > 3 && <div //* OPTIONAL FEATURES
+                className="flex items-center justify-center gap-[1rem]">
+                <Button //* STRICT MODE
+                    circle
+                    className={classMerge(
+                        !strict ? "bg-green-600" : "bg-[#e77d37]", //? Background
+                        "text-[0.6rem]", //? Font
+                    )}
+                    onClick={() => setStrict(!strict)}
+                >{strict ? "STRICT ON" : "STRICT OFF"}</Button>
+                <Button //* WHITELIST
+                    circle
+                    className={classMerge(
+                        "text-black text-[0.55rem]", //? Font
+                        "outline outline-[2px]", //? Outline
+                        "hover:outline-none hover:bg-white", //? Hover
+                        "transition-all duration-300", //? Animation
+                    )}
+                >Whitelist</Button>
+            </div>
+            }
         </div>
         {(myInfo.name.length > 3 && myInfo.id && socket && peer) && <Button //* START MEETING BUTTON
             type="submit"
