@@ -7,7 +7,7 @@ import { useGlobals } from "../hooks/useGlobals";
 
 export default function SessionList() {
     /* ----- STATES & HOOKS ----- */
-    const { roomList } = useGlobals()
+    const { roomList, myInfo } = useGlobals()
     const [search, setSearch] = useState<string>("")
     /* -------- RENDERING ------- */
     return <div //* CONTAINER
@@ -28,8 +28,9 @@ export default function SessionList() {
                 "h-full w-full max-h-[16em] p-[0.5em] pr-[0.5em] scroll-smooth ", //? Base
                 "flex flex-col gap-[0.75em] overflow-y-scroll", //? Display
             )}>
-            {roomList.map(({ id, host, participants, key, strict, stream }, index) => {
-                if (host.name.toUpperCase().includes(search.toUpperCase()) || id.toUpperCase().includes(search.toUpperCase())) {
+            {roomList.map(({ id, host, participants, key, strict, stream, whitelist }, index) => {
+                if ((host.name.toUpperCase().includes(search.toUpperCase()) || id.toUpperCase().includes(search.toUpperCase())) &&
+                    (whitelist.includes(myInfo.name.toUpperCase()) || whitelist.length === 0)) {
                     return <SessionInfo
                         key={index}
                         id={id}
@@ -38,6 +39,7 @@ export default function SessionList() {
                         meetingKey={key}
                         strict={strict}
                         stream={stream}
+                        whitelist={whitelist}
                     />
                 }
             })}
@@ -45,7 +47,7 @@ export default function SessionList() {
     </div >
 }
 
-function SessionInfo({ id, host, participants, meetingKey, strict, stream }: { id: string, host: UserProps, participants: UserProps[], meetingKey: string, strict: boolean, stream: StreamProps }) {
+function SessionInfo({ id, host, participants, meetingKey, strict, stream, whitelist }: { id: string, host: UserProps, participants: UserProps[], meetingKey: string, strict: boolean, stream: StreamProps, whitelist: string[] }) {
     /* ----- STATES & HOOKS ----- */
     const { socket, myInfo, setsystemPopup } = useGlobals()
     const [keyinput, setKeyinput] = useState<string>("")
@@ -54,8 +56,8 @@ function SessionInfo({ id, host, participants, meetingKey, strict, stream }: { i
     /* -------- RENDERING ------- */
     return <div //* SESSION INFO
         onClick={() => {
-            if (!meetingKey && !strict) socket?.emit("join-room", id, myInfo) //? Join meeting
-            if (!meetingKey && strict) { //? Request Entry
+            if (!meetingKey && (!strict || (strict && whitelist.includes(myInfo.name.toUpperCase())))) socket?.emit("join-room", id, myInfo) //? Join meeting
+            if (!meetingKey && strict && !whitelist.includes(myInfo.name.toUpperCase())) { //? Request Entry
                 socket?.emit("req-entry", id, myInfo)
                 setsystemPopup({
                     type: "INFO",
@@ -110,7 +112,7 @@ function SessionInfo({ id, host, participants, meetingKey, strict, stream }: { i
             onSubmit={(thisElement) => {
                 thisElement.preventDefault()
                 if (meetingKey === keyinput && !strict) socket?.emit("join-room", id, myInfo) //? Join Room
-                if (meetingKey === keyinput && strict) { //? Request Entry
+                if (!meetingKey && (strict || !whitelist.includes(myInfo.name.toUpperCase()))) { //? Request Entry
                     socket?.emit("req-entry", id, myInfo)
                     setsystemPopup({
                         type: "INFO",

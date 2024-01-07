@@ -14,6 +14,8 @@ const defaultValues: GlobalProps = {
     meetingCode: "",
     systemPopup: null,
     roomList: [],
+    rawWhitelist: "",
+    whitelist: [],
     /* -------------------------- */
     setsocket: () => { },
     setpeer: () => { },
@@ -21,6 +23,8 @@ const defaultValues: GlobalProps = {
     setIPv4: () => { },
     setmeetingCode: () => { },
     setsystemPopup: () => { },
+    setRawWhitelist: () => { },
+    setWhitelist: () => { },
 }
 const context = createContext<GlobalProps>(defaultValues)
 /* ------ HOOK PROVIDER ----- */
@@ -35,6 +39,8 @@ export function GlobalContextProvider({ children }: { children: ReactNode }) {
     const [meetingCode, setmeetingCode] = useState<string>("")
     const [systemPopup, setsystemPopup] = useState<SystemPopupProps | null>(null)
     const [roomList, setRoomList] = useState<RoomProps[]>([])
+    const [rawWhitelist, setRawWhitelist] = useState<string>("")
+    const [whitelist, setWhitelist] = useState<string[]>([])
     /* ------- IP HANDLER ------- */
     useEffect(() => {
         if (!IPv4) {
@@ -186,6 +192,8 @@ export function GlobalContextProvider({ children }: { children: ReactNode }) {
         meetingCode, setmeetingCode,
         systemPopup, setsystemPopup,
         roomList,
+        rawWhitelist, setRawWhitelist,
+        whitelist, setWhitelist,
     }
     return <context.Provider value={defaultValues}>
         {children}

@@ -9,10 +9,18 @@ import Participants from "./interactive/participants"
 import { UserProps } from "@/types/session.types"
 import { transformSDP } from "../utils/sdp.transform"
 import Inactives from "./interactive/inactives"
+import Whitelist from "../whitelist"
 
 export default function AppDock() {
     /* ----- STATES & HOOKS ----- */
     const { meetingCode } = useGlobals()
+    const [copy, setCopy] = useState<boolean>(false)
+    /* ------ EVENT HANDLER ----- */
+    useEffect(() => {
+        if (copy) setTimeout(() => {
+            setCopy(false)
+        }, 3000)
+    }, [copy])
     /* -------- RENDERING ------- */
     return <div //* CONTAINER
         className={classMerge(
@@ -21,12 +29,15 @@ export default function AppDock() {
         )}>
         <Button //* COPY MEETING
             useIcon iconSrc={require("@/public/images/Copy.svg")} iconOverlay
-            onClick={() => navigator.clipboard.writeText(meetingCode)}
+            onClick={() => {
+                navigator.clipboard.writeText(meetingCode) //? Copy the meeting code to the clipboard
+                setCopy(true)
+            }}
             className={classMerge(
                 "bg-transparent", //? Background
                 "hover:bg-[#525252]", //? Hover
                 "transition-all duration-200", //? Animation
-            )}>Meeting Code</Button>
+            )}>{copy ? "Copied!" : "Meeting Code"}</Button>
         <Dock />
         <Interactive />
     </div>
@@ -300,6 +311,7 @@ function Dock() {
 }
 function Interactive() {
     /* ----- STATES & HOOKS ----- */
+    const { setsystemPopup } = useGlobals()
     const { host } = useSession()
     /* -------- RENDERING ------- */
     return <div //* CONTAINER
@@ -307,5 +319,15 @@ function Interactive() {
         <Chat />
         <Participants />
         {host && <Inactives />}
+        {host && <Button //* FULLSCREEN
+            circle useIcon iconOverlay iconSrc={require("@/public/images/whitelist 2.svg")}
+            onClick={() => setsystemPopup({
+                type: "INFO",
+                message: <Whitelist context="Session" />
+            })}
+            className={classMerge(
+                "bg-[#525252]", //? Background
+                "hover:bg-[#646464]", //? Hover
+            )} />}
     </div>
 }

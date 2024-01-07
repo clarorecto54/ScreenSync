@@ -14,6 +14,8 @@ interface SessionProps {
     inactiveList: UserProps[]
     pendingList: UserProps[]
     fullscreen: boolean
+    rawWhitelist: string,
+    whitelist: string[],
     /* -------------------------- */
     sethost: Dispatch<SetStateAction<boolean>>
     setstreamAcces: Dispatch<SetStateAction<boolean>>
@@ -27,6 +29,8 @@ interface SessionProps {
     setinactiveList: Dispatch<SetStateAction<UserProps[]>>
     setpendingList: Dispatch<SetStateAction<UserProps[]>>
     setfullscreen: Dispatch<SetStateAction<boolean>>
+    setRawWhitelist: Dispatch<SetStateAction<string>>,
+    setWhitelist: Dispatch<SetStateAction<string[]>>
 }
 
 interface UserProps {
@@ -56,7 +60,8 @@ interface RoomProps {
     key: string
     host: UserProps
     participants: UserProps[]
-    pending: UserProps[] | undefined
+    whitelist: string[]
+    pending: UserProps[]
     chatlog: MessageProps[]
     stream: StreamProps
     entries: AttendanceProps[]

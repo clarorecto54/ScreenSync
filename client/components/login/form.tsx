@@ -8,6 +8,7 @@ import AnimatedLogo from "../animated.logo";
 import { RoomProps } from "@/types/session.types";
 import { v4 } from "uuid"
 import { redirect, RedirectType } from "next/navigation";
+import Whitelist from "../whitelist";
 export default function LoginForm() {
     /* -------- RENDERING ------- */
     return <div //* CONTAINER
@@ -60,7 +61,7 @@ function Description() {
 function Input() {
     /* ----- STATES & HOOKS ----- */
     const {
-        socket, peer,
+        socket, peer, whitelist, setsystemPopup,
         myInfo, setmyInfo,
         meetingCode, setmeetingCode,
     } = useGlobals()
@@ -70,6 +71,9 @@ function Input() {
     useEffect(() => {
         meetingCode && redirect(`/${meetingCode}`, RedirectType.replace)
     }, [meetingCode])
+    useEffect(() => {
+        if (whitelist.length !== 0) setStrict(true)
+    }, [whitelist, strict])
     /* -------- RENDERING ------- */
     return <form //* INPUTS CONTAINER
         className={
@@ -85,7 +89,8 @@ function Input() {
                     key: key,
                     host: myInfo,
                     participants: [myInfo],
-                    pending: strict ? [] : undefined,
+                    whitelist: whitelist,
+                    pending: [],
                     stream: { hostID: myInfo.id, streamer: undefined, presenting: false },
                     entries: [],
                     chatlog: [],
@@ -120,6 +125,10 @@ function Input() {
                 >{strict ? "STRICT ON" : "STRICT OFF"}</Button>
                 <Button //* WHITELIST
                     circle
+                    onClick={() => setsystemPopup({
+                        type: "INFO",
+                        message: <Whitelist context="Global" />
+                    })}
                     className={classMerge(
                         "text-black text-[0.55rem]", //? Font
                         "outline outline-[2px]", //? Outline

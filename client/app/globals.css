@@ -49,6 +49,11 @@ input {
   outline: none;
 }
 
+textarea {
+  resize: none;
+  outline: none;
+}
+
 .panelStyle {
   background: hsla(0, 0%, 96%, 0.8);
   /* HOVER COLOR */

@@ -11,6 +11,8 @@ interface GlobalProps {
     meetingCode: string
     systemPopup: SystemPopupProps | null
     roomList: RoomProps[]
+    rawWhitelist: string,
+    whitelist: string[],
     /* -------------------------- */
     setsocket: Dispatch<SetStateAction<Socket | null>>
     setpeer: Dispatch<SetStateAction<Peer | null>>
@@ -18,4 +20,6 @@ interface GlobalProps {
     setIPv4: Dispatch<SetStateAction<string>>
     setmeetingCode: Dispatch<SetStateAction<string>>
     setsystemPopup: Dispatch<SetStateAction<SystemPopupProps | null>>
+    setRawWhitelist: Dispatch<SetStateAction<string>>,
+    setWhitelist: Dispatch<SetStateAction<string[]>>
 }

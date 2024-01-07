@@ -25,7 +25,8 @@ export interface RoomProps {
     key: string
     host: UserProps
     participants: UserProps[]
-    pending: UserProps[] | undefined
+    whitelist: string[]
+    pending: UserProps[]
     chatlog: MessageProps[]
     stream: StreamProps
     entries: AttendanceProps[]

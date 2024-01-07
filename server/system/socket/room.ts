@@ -8,6 +8,21 @@ import { readFileSync } from "fs-extra";
 
 export default function RoomSystem(socket: Socket) {
     RoomCleanup()
+    socket.on("update-whitelist", (targetRoom: string, whitelist: string[]) => {
+        RoomList.forEach(room => {
+            if (room.id === targetRoom) {
+                room.whitelist = whitelist
+            }
+        })
+        RoomCleanup()
+    })
+    socket.on("get-whitelist", (targetRoom: string) => {
+        RoomList.forEach(room => {
+            if (room.id === targetRoom) {
+                io.to(socket.id).emit("get-whitelist", room.whitelist)
+            }
+        })
+    })
     socket.on("get-host-name", (targetRoom: string) => {
         RoomList.forEach(room => {
             if (room.id === targetRoom) {
@@ -128,7 +143,7 @@ export default function RoomSystem(socket: Socket) {
                 if (room.host.id === socket.id) { //? If host leave the meeting
                     socket.broadcast.to(targetRoom).emit("dissolve-meeting")
                     room.pending?.forEach(client => io.to(client.id).emit("cancel-req"))
-                    room.pending = undefined
+                    room.pending = []
                     room.participants = []
                     ServerLog("server", `[ ROOM ][ ${room.id} ] new room has deleted.`, true)
                 } else { //? If a participant leave the meeting

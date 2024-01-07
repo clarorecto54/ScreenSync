@@ -1,6 +1,6 @@
 "use client"
 import { SessionProps, UserProps } from "@/types/session.types"
-import { ReactNode, createContext, useContext, useEffect, useState } from "react"
+import { ReactNode, createContext, use, useContext, useEffect, useState } from "react"
 import { useGlobals } from "./useGlobals"
 import { redirect, RedirectType } from "next/navigation"
 import { MediaConnection } from "peerjs"
@@ -19,6 +19,8 @@ const defaultValues: SessionProps = {
     inactiveList: [],
     pendingList: [],
     fullscreen: false,
+    rawWhitelist: "",
+    whitelist: [],
     /* -------------------------- */
     sethost: () => { },
     setstreamAcces: () => { },
@@ -32,6 +34,8 @@ const defaultValues: SessionProps = {
     setinactiveList: () => { },
     setpendingList: () => { },
     setfullscreen: () => { },
+    setRawWhitelist: () => { },
+    setWhitelist: () => { },
 }
 const context = createContext<SessionProps>(defaultValues)
 /* ------ HOOK PROVIDER ----- */
@@ -56,6 +60,9 @@ export function SessionContextProvider({ children }: { children: ReactNode }) {
     const [inactiveList, setinactiveList] = useState<UserProps[]>([])
     const [pendingList, setpendingList] = useState<UserProps[]>([])
     const [fullscreen, setfullscreen] = useState<boolean>(false)
+    const [rawWhitelist, setRawWhitelist] = useState<string>("")
+    const [whitelist, setWhitelist] = useState<string[]>([])
+    const [syncedWhitelist, setSyncedWhitelist] = useState<boolean>(false)
     /* ---- SESSION VALIDATOR --- */
     useEffect(() => {
         !meetingCode && redirect("/", RedirectType.replace)
@@ -73,6 +80,11 @@ export function SessionContextProvider({ children }: { children: ReactNode }) {
         socket?.emit("participant-list", meetingCode)
         socket?.emit("inactive-list", meetingCode)
         //* ON (RES)
+        socket?.on("get-whitelist", (whitelist: string[]) => {
+            setWhitelist(whitelist)
+            setRawWhitelist(whitelist.join('\n'))
+            setSyncedWhitelist(true)
+        })
         socket?.on("pending-list", (pendingList: UserProps[]) => setpendingList(pendingList))
         socket?.on("inactive-list", (inactiveList: UserProps[]) => setinactiveList(inactiveList))
         socket?.on("participant-list", (participantList: UserProps[]) => setParticipantList(participantList))
@@ -80,7 +92,10 @@ export function SessionContextProvider({ children }: { children: ReactNode }) {
             socket.emit("leave-room", meetingCode)
             setmeetingCode("")
         })
-        socket?.on("check-host", () => sethost(true))
+        socket?.on("check-host", () => {
+            sethost(true)
+            socket.emit("get-whitelist", meetingCode)
+        })
         //* PEER ON (RES)
         peer?.on("call", call => {
             call.answer(undefined, { sdpTransform: transformSDP })
@@ -98,6 +113,11 @@ export function SessionContextProvider({ children }: { children: ReactNode }) {
         return () => {
             document.removeEventListener("visibilitychange", VisibilityHandler)
             //* SOCKET CLEANUP
+            socket?.off("get-whitelist", (whitelist: string[]) => {
+                setWhitelist(whitelist)
+                setRawWhitelist(whitelist.join('\n'))
+                setSyncedWhitelist(true)
+            })
             socket?.off("pending-list", (pendingList: UserProps[]) => setpendingList(pendingList))
             socket?.off("inactive-list", (inactiveList: UserProps[]) => setinactiveList(inactiveList))
             socket?.off("participant-list", (participantList: UserProps[]) => setParticipantList(participantList))
@@ -105,7 +125,10 @@ export function SessionContextProvider({ children }: { children: ReactNode }) {
                 socket.emit("leave-room", meetingCode)
                 setmeetingCode("")
             })
-            socket?.off("check-host", () => sethost(true))
+            socket?.off("check-host", () => {
+                sethost(true)
+                socket.emit("get-whitelist", meetingCode)
+            })
             //* PEER ON (RES)
             peer?.off("call", call => {
                 call.answer(undefined, { sdpTransform: transformSDP })
@@ -122,6 +145,12 @@ export function SessionContextProvider({ children }: { children: ReactNode }) {
             })
         }
     }, [])
+    /* ------ EVENT HANDLER ----- */
+    useEffect(() => {
+        if (syncedWhitelist) {
+            socket?.emit("update-whitelist", meetingCode, whitelist)
+        }
+    }, [whitelist])
     /* -------- PROVIDER -------- */
     const defaultValues: SessionProps = {
         host,
@@ -136,6 +165,8 @@ export function SessionContextProvider({ children }: { children: ReactNode }) {
         fullscreen,
         inactiveList,
         pendingList,
+        rawWhitelist,
+        whitelist,
         /* -------------------------- */
         sethost,
         setstreamAcces,
@@ -149,6 +180,8 @@ export function SessionContextProvider({ children }: { children: ReactNode }) {
         setfullscreen,
         setinactiveList,
         setpendingList,
+        setRawWhitelist,
+        setWhitelist,
     }
     return <context.Provider value={defaultValues}>{children}</context.Provider>
 }
