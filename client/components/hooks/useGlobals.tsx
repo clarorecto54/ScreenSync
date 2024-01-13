@@ -3,7 +3,7 @@ import { GlobalProps } from "@/types/globals.types";
 import { RoomProps, UserProps } from "@/types/session.types";
 import { SystemPopupProps } from "@/types/system.popup.types";
 import Peer from "peerjs";
-import { ReactNode, createContext, useContext, useEffect, useState } from "react";
+import { ReactNode, createContext, useContext, useEffect, useRef, useState } from "react";
 import { Socket, io } from "socket.io-client";
 /* -------- INTERFACE ------- */
 const defaultValues: GlobalProps = {
@@ -41,6 +41,7 @@ export function GlobalContextProvider({ children }: { children: ReactNode }) {
     const [roomList, setRoomList] = useState<RoomProps[]>([])
     const [rawWhitelist, setRawWhitelist] = useState<string>("")
     const [whitelist, setWhitelist] = useState<string[]>([])
+    const myInfoRef = useRef<UserProps>(myInfo)
     /* ------- IP HANDLER ------- */
     useEffect(() => {
         if (!IPv4) {
@@ -61,13 +62,15 @@ export function GlobalContextProvider({ children }: { children: ReactNode }) {
             //* EMIT (REQ)
             socket.emit("my-ipv4")
             //* ON (RES)
+            socket.on("accept-req", (targetRoom: string) => {
+                console.log(myInfoRef.current)
+                setsystemPopup(null) //? Close popup
+                socket.emit("join-room", targetRoom, myInfoRef.current) //? Join meeting
+            })
             socket.on("existing-req", () => setsystemPopup({
                 type: "ERROR",
                 message: "Your username is already used in this room or someone in the pending list.",
                 icon: require("@/public/images/Participants.svg"),
-                closeAction() {
-                    window.location.reload()
-                },
             }))
             socket.on("cancel-req", () => setsystemPopup({
                 type: "ERROR",
@@ -83,9 +86,6 @@ export function GlobalContextProvider({ children }: { children: ReactNode }) {
                 type: "ERROR",
                 message: "Username is already existing on the room. Please change your username.",
                 icon: require("@/public/images/Participants.svg"),
-                closeAction() {
-                    window.location.reload()
-                },
             }))
             socket.on("join-room", (targetRoom: string) => {
                 setmeetingCode(targetRoom)
@@ -116,13 +116,15 @@ export function GlobalContextProvider({ children }: { children: ReactNode }) {
         }
         return () => {
             if (socket) {
+                socket.off("accept-req", (targetRoom: string) => {
+                    console.log(myInfoRef.current)
+                    setsystemPopup(null) //? Close popup
+                    socket.emit("join-room", targetRoom, myInfoRef.current) //? Join meeting
+                })
                 socket.off("existing-req", () => setsystemPopup({
                     type: "ERROR",
                     message: "Your username is already used in this room or someone in the pending list.",
                     icon: require("@/public/images/Participants.svg"),
-                    closeAction() {
-                        window.location.reload()
-                    },
                 }))
                 socket.off("cancel-req", () => setsystemPopup({
                     type: "ERROR",
@@ -138,9 +140,6 @@ export function GlobalContextProvider({ children }: { children: ReactNode }) {
                     type: "ERROR",
                     message: "Username is already existing on the room. Please change your username.",
                     icon: require("@/public/images/Participants.svg"),
-                    closeAction() {
-                        window.location.reload()
-                    },
                 }))
                 socket.off("join-room", (targetRoom: string) => {
                     setmeetingCode(targetRoom)
@@ -171,18 +170,7 @@ export function GlobalContextProvider({ children }: { children: ReactNode }) {
             }
         }
     }, [socket])
-    useEffect(() => { //? This event handler is specifically used for accepted request of a client after requesting an access of a room
-        if (socket && myInfo.name.length > 3) socket.on("accept-req", (targetRoom: string) => {
-            setsystemPopup(null) //? Close popup
-            socket.emit("join-room", targetRoom, myInfo) //? Join meeting
-        })
-        return () => {
-            if (socket) socket.off("accept-req", (targetRoom: string) => {
-                setsystemPopup(null) //? Close popup
-                socket.emit("join-room", targetRoom, myInfo) //? Join meeting
-            })
-        }
-    }, [myInfo])
+    useEffect(() => { myInfoRef.current = myInfo }, [myInfo])
     /* -------- PROVIDER -------- */
     const defaultValues: GlobalProps = {
         socket, setsocket,
