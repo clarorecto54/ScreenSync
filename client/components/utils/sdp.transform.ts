@@ -1,7 +1,7 @@
 import { write, parse, SessionDescription, MediaAttributes } from "sdp-transform"
 export function transformSDP(sdp: string) {
     const modifiedSDP: SessionDescription = parse(sdp)
-    const quality: number = 3000000
+    const quality: number = 30000000
     const fps: number = 60
     //* INITAITE NEW CODECS
     var payloads: number[] = []
@@ -18,14 +18,14 @@ export function transformSDP(sdp: string) {
     ]
     //* CODEC LIST
     const GoogleFlags: string = [
-        "x-google-start-bitrate=1000",
-        "x-google-min-bitrate=1000",
-        "x-google-max-bitrate=2000",
+        "x-google-start-bitrate=8000",
+        "x-google-min-bitrate=8000",
+        "x-google-max-bitrate=10000",
         "x-google-min-quantization=20",
         "x-google-max-quantization=30",
         "sprop-maxcapturerate=60"
     ].join(';')
-    const h264Extra: string = ";max-br=2000;max-fr=60"
+    const h264Extra: string = ";max-br=10000;max-fr=60"
     const videoCodecs: { codec: string, config: string }[] = [
         { codec: "VP8", config: "".concat(`;${GoogleFlags}`) },
         { codec: "H264", config: "level-asymmetry-allowed=1;packetization-mode=1;profile-level-id=64001f".concat(h264Extra).concat(`;${GoogleFlags}`) },
