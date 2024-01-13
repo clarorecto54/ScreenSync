@@ -56,6 +56,10 @@ function SessionInfo({ id, host, participants, meetingKey, strict, stream, white
     /* -------- RENDERING ------- */
     return <div //* SESSION INFO
         onClick={() => {
+            if ((myInfo.name === host.name) && !participants.some(participants => participants.name === host.name)) { //? If host rejoin the room
+                socket?.emit("join-room", id, myInfo)
+                return
+            }
             if (!meetingKey && (!strict || (strict && whitelist.includes(myInfo.name.toUpperCase())))) socket?.emit("join-room", id, myInfo) //? Join meeting
             if (!meetingKey && strict && !whitelist.includes(myInfo.name.toUpperCase())) { //? Request Entry
                 socket?.emit("req-entry", id, myInfo)
@@ -111,8 +115,12 @@ function SessionInfo({ id, host, participants, meetingKey, strict, stream, white
         <form //* KEY INPUT
             onSubmit={(thisElement) => {
                 thisElement.preventDefault()
-                if (meetingKey === keyinput && !strict) socket?.emit("join-room", id, myInfo) //? Join Room
-                if (!meetingKey && (strict || !whitelist.includes(myInfo.name.toUpperCase()))) { //? Request Entry
+                if ((myInfo.name === host.name) && !participants.some(participants => participants.name === host.name)) { //? If host rejoin the room
+                    socket?.emit("join-room", id, myInfo)
+                    return
+                }
+                if ((meetingKey === keyinput) && (!strict || (strict && whitelist.includes(myInfo.name.toUpperCase())))) socket?.emit("join-room", id, myInfo) //? Join meeting
+                if ((meetingKey === keyinput) && strict && !whitelist.includes(myInfo.name.toUpperCase())) { //? Request Entry
                     socket?.emit("req-entry", id, myInfo)
                     setsystemPopup({
                         type: "INFO",
