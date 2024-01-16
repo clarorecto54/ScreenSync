@@ -1,7 +1,7 @@
 @echo off
 
 REM Run client scripts in the background
-start cmd /k "cd .\client && npm run build && npm run start"
+start cmd /k "cd .\client && npm run start"
 
 REM Run server script
 cd .\server

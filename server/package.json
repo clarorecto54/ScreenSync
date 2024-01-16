@@ -4,8 +4,8 @@
   "description": "TUPC Screen Mirroring Solution",
   "main": "server.ts",
   "scripts": {
-    "server": "nodemon server.ts",
-    "test": "nodemon test.ts"
+    "server": "nodemon --exitcrash --signal SIGINT,SIGTERM,SIGHUP server.ts",
+    "test": "nodemon --exitcrash test.ts"
   },
   "keywords": [],
   "author": "",
