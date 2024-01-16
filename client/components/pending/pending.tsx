@@ -22,7 +22,10 @@ export default function Pending() {
             Pending Participants
         </label>
         <div //* PENDING LIST
-            className="flex flex-col gap-[0.25rem] justify-center items-center">
+            className={classMerge(
+                "flex flex-col gap-[0.25rem] justify-center items-center ", //? Base
+                "overflow-hidden overflow-y-auto max-h-[128px]", //? Overflow Limits
+            )}>
             {pendingList.map((client, index) => {
                 return <PendingItem key={index} user={client} />
             })}
