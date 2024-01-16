@@ -1,4 +1,4 @@
 @echo off
 REM Run server script
-cd .\server
+cd ..\server
 npm run server

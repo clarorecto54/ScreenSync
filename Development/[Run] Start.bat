@@ -1,5 +1,5 @@
 @echo off
 REM Run server script
-cd .\client
+cd ..\client
 npm run start
 pause

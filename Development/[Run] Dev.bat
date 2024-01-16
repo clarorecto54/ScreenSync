@@ -1,5 +1,5 @@
 @echo off
 REM Run client scripts in the background
-cd .\client
+cd ..\client
 npm run dev
 pause
