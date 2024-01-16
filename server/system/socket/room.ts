@@ -84,7 +84,7 @@ export default function RoomSystem(socket: Socket) {
     socket.on("req-entry", (targetRoom: string, targetUser: UserProps) => {
         RoomList.forEach(room => {
             if (room.id === targetRoom && room.pending) {
-                if (!room.participants.some(participant => participant.name === targetUser.name) && !room.pending.includes(targetUser)) {//? Make sure that the username is not used on the room or pending list
+                if (!room.participants.some(participant => participant.name.toUpperCase() === targetUser.name.toUpperCase()) && !room.pending.includes(targetUser)) {//? Make sure that the username is not used on the room or pending list
                     room.pending.push(targetUser) //? Add the user to the pending list
                 } else { //? This function will trigger when username is already existed in the room or pending list
                     io.to(targetUser.id).emit("existing-req")
@@ -108,10 +108,10 @@ export default function RoomSystem(socket: Socket) {
     socket.on("join-room", (roomID: string, userInfo: UserProps) => {
         RoomList.forEach(room => { //? VALIDATION (Make sure the username is not existed in the room)
             if (room.id === roomID) { //? Find the specific room
-                if (room.participants.some(participant => participant.name === userInfo.name)) { //? If username existed
+                if (room.participants.some(participant => participant.name.toUpperCase() === userInfo.name.toUpperCase())) { //? If username existed
                     io.to(socket.id).emit("user-existed")
                 } else { //? Join room if username is not existed
-                    if (((userInfo.IPv4 === room.host.IPv4) && (userInfo.name === room.host.name))) { //? Incase host got reconnected (New ID)
+                    if (((userInfo.IPv4 === room.host.IPv4) && (userInfo.name.toUpperCase() === room.host.name.toUpperCase()))) { //? Incase host got reconnected (New ID)
                         room.host.id = socket.id //? Update host ID
                     }
                     room.participants.push(userInfo) //? Adds user to the participants list

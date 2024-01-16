@@ -30,7 +30,7 @@ export default function SessionList() {
             )}>
             {roomList.map(({ id, host, participants, key, strict, stream, whitelist }, index) => {
                 if ((host.name.toUpperCase().includes(search.toUpperCase()) || id.toUpperCase().includes(search.toUpperCase())) &&
-                    (whitelist.includes(myInfo.name.toUpperCase()) || whitelist.length === 0)) {
+                    (whitelist.includes(myInfo.name.toUpperCase()) || whitelist.length === 0 || host.name.toUpperCase() === myInfo.name.toUpperCase())) {
                     return <SessionInfo
                         key={index}
                         id={id}
@@ -56,7 +56,7 @@ function SessionInfo({ id, host, participants, meetingKey, strict, stream, white
     /* -------- RENDERING ------- */
     return <div //* SESSION INFO
         onClick={() => {
-            if ((myInfo.name === host.name) && !participants.some(participants => participants.name === host.name)) { //? If host rejoin the room
+            if ((myInfo.name.toUpperCase() === host.name.toUpperCase()) && !participants.some(participants => participants.name.toUpperCase() === host.name.toUpperCase())) { //? If host rejoin the room
                 socket?.emit("join-room", id, myInfo)
                 return
             }
@@ -115,7 +115,7 @@ function SessionInfo({ id, host, participants, meetingKey, strict, stream, white
         <form //* KEY INPUT
             onSubmit={(thisElement) => {
                 thisElement.preventDefault()
-                if ((myInfo.name === host.name) && !participants.some(participants => participants.name === host.name)) { //? If host rejoin the room
+                if ((myInfo.name.toUpperCase() === host.name.toUpperCase()) && !participants.some(participants => participants.name.toUpperCase() === host.name.toUpperCase())) { //? If host rejoin the room
                     socket?.emit("join-room", id, myInfo)
                     return
                 }
