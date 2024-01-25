@@ -48,6 +48,7 @@ export default function Session() {
             )}>
             {systemPopup?.type === "ALERT" && <audio
                 autoPlay loop
+                onPlay={() => navigator.vibrate(100)}
                 src="/sounds/alarm.wav"
                 typeof="audio/wav" />}
             {systemPopup !== null && <SystemPopup />}
