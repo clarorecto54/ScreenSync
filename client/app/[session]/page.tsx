@@ -6,10 +6,26 @@ import MainDisplay from "@/components/session/display";
 import Header from "@/components/session/headers";
 import SystemPopup from "@/components/system.popup";
 import classMerge from "@/components/utils/classMerge";
+import { useEffect } from "react";
 
 export default function Session() {
     /* ----- STATES & HOOKS ----- */
     const { systemPopup } = useGlobals()
+    /* ------ EVENT HANDLER ----- */
+    useEffect(() => {
+        let intervalId: any
+        if (systemPopup?.type === "ALERT") {
+            intervalId = setInterval(() => {
+                navigator.vibrate(500)
+            }, 1000)
+        } else {
+            navigator.vibrate(0)
+        }
+        return () => {
+            clearInterval(intervalId)
+            navigator.vibrate(0)
+        }
+    }, [systemPopup])
     /* -------- RENDERING ------- */
     return <SessionContextProvider>
         <div //* VIEWPORT
